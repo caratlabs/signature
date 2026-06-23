@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Signature — Diamond Jewellery Studio</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Inter:wght@300;400;500;600&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --gold: #8B6914;
+  --gold-mid: #B8892A;
+  --gold-light: #C9A96E;
+  --bg: #FFFFFF;
+  --surface: #F8F7F5;
+  --surface2: #F0EDE8;
+  --border: #E3DED8;
+  --border-focus: #C9A96E;
+  --text: #1C1917;
+  --text-2: #57534E;
+  --text-3: #A8A29E;
+  --success: #16A34A;
+  --error: #DC2626;
+  --blue: #2563EB;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── HEADER ── */
+header {
+  height: 56px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background: var(--bg);
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-label {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text);
+  letter-spacing: 0.01em;
+}
+
+.header-divider {
+  width: 1px;
+  height: 18px;
+  background: var(--border);
+}
+
+.model-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 12px 4px 8px;
+  font-size: 12px;
+  color: var(--text-2);
+  cursor: default;
+}
+
+.model-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--text-3);
+  transition: background 0.3s;
+}
+.model-dot.live { background: var(--success); box-shadow: 0 0 5px var(--success); }
+
+.logo-mark {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--gold);
+  letter-spacing: 0.06em;
+}
+
+/* ── BRAND LOGO ── */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: default;
+  user-select: none;
+}
+.brand-sep {
+  width: 1px;
+  height: 26px;
+  background: linear-gradient(to bottom, transparent, var(--gold-light), transparent);
+  flex-shrink: 0;
+}
+.brand-copy {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+.brand-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  background: linear-gradient(95deg, #8B6914 0%, #B8892A 40%, #C9A96E 70%, #8B6914 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--gold);
+}
+.brand-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.api-input-wrap {
+  position: relative;
+}
+.api-input-wrap input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-family: monospace;
+  color: var(--text);
+  outline: none;
+  width: 220px;
+  transition: border-color 0.2s;
+  letter-spacing: 0.03em;
+}
+.api-input-wrap input:focus { border-color: var(--border-focus); }
+.api-input-wrap input::placeholder { color: var(--text-3); letter-spacing: 0; }
+
+/* ── MAIN LAYOUT ── */
+.main {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ── LEFT SIDEBAR ── */
+.sidebar {
+  width: 220px;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  padding: 16px 0;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+.sidebar-section {
+  padding: 0 16px 16px;
+}
+
+.sidebar-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 8px;
+}
+
+.sidebar-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 16px 16px;
+}
+
+/* Preset buttons */
+.preset-btn {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: var(--text-2);
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  line-height: 1.4;
+  transition: background 0.15s, color 0.15s;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-bottom: 2px;
+}
+.preset-btn:hover { background: var(--surface2); color: var(--text); }
+.preset-icon { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+
+/* History thumbnails */
+.history-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 0 16px;
+}
+.history-thumb {
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.15s;
+  width: 100%;
+}
+.history-thumb:hover { border-color: var(--gold-light); opacity: 0.9; }
+
+/* ── CANVAS AREA ── */
+.canvas-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--bg);
+  position: relative;
+}
+
+/* Output area */
+.output-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Empty state */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+.empty-diamond {
+  width: 56px; height: 56px;
+  opacity: 0.2;
+}
+.empty-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--text);
+  letter-spacing: 0.04em;
+}
+.empty-sub {
+  font-size: 13px;
+  color: var(--text-3);
+  max-width: 320px;
+  line-height: 1.5;
+}
+
+/* Loading state */
+.loading-state {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.spinner {
+  width: 40px; height: 40px;
+  border: 2px solid var(--border);
+  border-top-color: var(--gold-mid);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  font-weight: 300;
+  color: var(--text-2);
+  letter-spacing: 0.05em;
+}
+.loading-sub { font-size: 11px; color: var(--text-3); letter-spacing: 0.05em; }
+
+/* Result state */
+.result-state {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 100%;
+  max-height: 100%;
+}
+.result-image {
+  max-width: 100%;
+  max-height: calc(100vh - 430px);
+  min-height: 180px;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  cursor: zoom-in;
+  transition: transform 0.2s ease;
+}
+.result-image:hover { transform: scale(1.01); }
+
+/* ── LIGHTBOX ── */
+.lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(20,17,15,0.86);
+  backdrop-filter: blur(6px);
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 18px;
+  padding: 40px;
+}
+.lightbox.open { display: flex; }
+.lightbox-img {
+  max-width: 92vw;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.5);
+  cursor: zoom-out;
+  transition: transform 0.25s ease;
+  transform-origin: center;
+}
+.lightbox-img.zoomed { cursor: grab; max-width: none; max-height: none; }
+.lightbox-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.lightbox-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-size: 13px;
+  color: #fff;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.15s;
+}
+.lightbox-btn:hover { background: rgba(255,255,255,0.2); }
+.lightbox-btn.primary {
+  background: var(--gold);
+  border-color: var(--gold);
+  font-weight: 500;
+}
+.lightbox-btn.primary:hover { background: var(--gold-mid); }
+.lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: #fff;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.lightbox-close:hover { background: rgba(255,255,255,0.25); }
+.result-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-size: 12px;
+  color: var(--text-2);
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.15s;
+}
+.action-btn:hover { background: var(--surface2); border-color: var(--border-focus); color: var(--text); }
+.action-btn.primary {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: white;
+  font-weight: 500;
+}
+.action-btn.primary:hover { background: var(--gold-mid); border-color: var(--gold-mid); }
+.result-meta {
+  font-size: 11px;
+  color: var(--text-3);
+  letter-spacing: 0.04em;
+}
+
+/* Error state */
+.error-state {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 400px;
+  text-align: center;
+}
+.error-title { font-size: 16px; color: var(--error); font-weight: 500; }
+.error-msg {
+  font-size: 11px;
+  color: var(--text-2);
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: 8px;
+  padding: 12px;
+  font-family: monospace;
+  text-align: left;
+  width: 100%;
+  line-height: 1.5;
+}
+
+/* ── BOTTOM INPUT BOX (Google AI Studio style) ── */
+.input-dock {
+  padding: 0 24px 20px;
+  flex-shrink: 0;
+}
+
+.input-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  overflow: hidden;
+}
+.input-box:focus-within {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(201,169,110,0.12);
+}
+
+/* Top row: ref type chips + settings */
+.input-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px 0;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ref-chips {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.ref-chip-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-right: 4px;
+}
+
+.ref-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 11px;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Inter', sans-serif;
+  white-space: nowrap;
+}
+.ref-chip:hover { border-color: var(--gold-light); color: var(--gold); }
+.ref-chip.active {
+  background: #FDF8F0;
+  border-color: var(--gold-light);
+  color: var(--gold);
+  font-weight: 500;
+}
+.ref-chip-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+/* Settings row */
+.input-settings {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.setting-select {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 11px;
+  color: var(--text-2);
+  cursor: pointer;
+  outline: none;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.15s;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23A8A29E' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 7px center;
+  padding-right: 22px;
+}
+.setting-select:focus, .setting-select:hover { border-color: var(--gold-light); color: var(--text); }
+
+.setting-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+/* Textarea */
+.input-textarea-wrap {
+  padding: 8px 14px 4px;
+}
+.input-textarea-wrap textarea {
+  width: 100%;
+  background: none;
+  border: none;
+  outline: none;
+  resize: none;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 52px;
+  max-height: 140px;
+  overflow-y: auto;
+}
+.input-textarea-wrap textarea::placeholder { color: var(--text-3); }
+
+/* Uploaded ref images strip */
+.ref-images-strip {
+  display: flex;
+  gap: 6px;
+  padding: 4px 14px 0;
+  flex-wrap: wrap;
+}
+.ref-thumb-item {
+  position: relative;
+  width: 48px; height: 48px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.ref-thumb-item img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.ref-thumb-type {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,0.55);
+  font-size: 7px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: white;
+  text-align: center;
+  padding: 2px 2px;
+  line-height: 1.2;
+}
+.ref-thumb-remove {
+  position: absolute;
+  top: 2px; right: 2px;
+  width: 14px; height: 14px;
+  background: rgba(0,0,0,0.65);
+  border-radius: 50%;
+  color: white;
+  font-size: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 1;
+}
+.ref-thumb-remove:hover { background: var(--error); }
+
+/* Bottom row: upload + run */
+.input-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px 10px 14px;
+}
+
+.input-actions-left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 8px;
+  cursor: pointer;
+  color: var(--text-3);
+  font-size: 14px;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+}
+.icon-btn:hover { background: var(--surface2); color: var(--text-2); }
+.ref-count-badge {
+  background: var(--gold);
+  color: white;
+  font-size: 9px;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 1px 5px;
+  line-height: 1.4;
+}
+
+.run-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--gold);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.02em;
+}
+.run-btn:hover:not(:disabled) {
+  background: var(--gold-mid);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(139,105,20,0.3);
+}
+.run-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* Run icon */
+.run-icon {
+  width: 14px; height: 14px;
+  fill: white;
+}
+
+/* Hidden file input */
+#refImgInput { display: none; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+/* Drag overlay */
+.drag-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(201,169,110,0.08);
+  border: 3px dashed var(--gold-light);
+  border-radius: 12px;
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--gold);
+  pointer-events: none;
+}
+body.dragging .drag-overlay { display: flex; }
+
+</style>
+</head>
+<body>
+
+<div class="drag-overlay">Drop images to add as references</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lightbox-close" onclick="closeLightbox(event, true)" title="Close">✕</button>
+  <img class="lightbox-img" id="lightboxImg" src="" alt="" onclick="toggleZoom(event)" title="Click to zoom in/out"/>
+  <div class="lightbox-actions">
+    <button class="lightbox-btn" onclick="toggleZoom(event)">⤢ Zoom</button>
+    <button class="lightbox-btn primary" onclick="downloadLightbox(event)">↓ Download PNG</button>
+  </div>
+</div>
+<input type="file" id="refImgInput" accept="image/*" multiple onchange="handleFileInput(event)"/>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <div class="brand" title="◆ Signature | Diamond Jewellery Studio">
+      <span class="logo-mark">◆ Signature</span>
+      <span class="brand-sep"></span>
+      <span class="brand-name">Diamond Jewellery Studio</span>
+      <span class="model-dot" id="modelDot"></span>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="api-input-wrap">
+      <input type="password" id="apiKey" placeholder="API Key (sk-...)" oninput="updateStatus()" autocomplete="off"/>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- LEFT SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Quick Presets</div>
+      <button class="preset-btn" onclick="setManiquePreset()">
+        <span class="preset-icon">◆</span>
+        <span>Default Manique</span>
+      </button>
+      <button class="preset-btn" onclick="setPrompt('Diamond solitaire ring on black velvet, cinematic studio lighting, luxury jewellery campaign, photorealistic, highly detailed')">
+        <span class="preset-icon">💎</span>
+        <span>Solitaire Ring Campaign</span>
+      </button>
+      <button class="preset-btn" onclick="setPrompt('Diamond tennis bracelet on white marble, soft diffused overhead lighting, luxury product photography, clean white background')">
+        <span class="preset-icon">✦</span>
+        <span>Tennis Bracelet Shot</span>
+      </button>
+      <button class="preset-btn" onclick="setPrompt('Diamond drop earrings on female model, fashion editorial, high-end jewellery advertisement, soft golden hour light')">
+        <span class="preset-icon">◈</span>
+        <span>Earrings Editorial</span>
+      </button>
+      <button class="preset-btn" onclick="setPrompt('Diamond necklace flat lay on dark velvet, macro close-up, brilliant sparkle, deep black background, luxury brand aesthetic')">
+        <span class="preset-icon">◇</span>
+        <span>Necklace Flat Lay</span>
+      </button>
+      <button class="preset-btn" onclick="setPrompt('Diamond engagement ring held between fingers, bokeh background, warm natural light, romantic luxury jewellery advertisement')">
+        <span class="preset-icon">◉</span>
+        <span>Engagement Ring</span>
+      </button>
+      <button class="preset-btn" onclick="setPrompt('Diamond bangle bracelet on wrist, lifestyle shot, elegant hands, soft studio lighting, white background, high-end brand')">
+        <span class="preset-icon">○</span>
+        <span>Bangle Lifestyle</span>
+      </button>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Recent</div>
+      <div class="history-grid" id="historyGrid">
+        <div style="font-size:11px;color:var(--text-3);grid-column:1/-1;text-align:center;padding:8px 0;">No images yet</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CANVAS WRAP -->
+  <div class="canvas-wrap">
+
+    <!-- OUTPUT AREA -->
+    <div class="output-area" id="outputArea"
+      ondragover="event.preventDefault(); document.body.classList.add('dragging')"
+      ondragleave="document.body.classList.remove('dragging')"
+      ondrop="handleDrop(event)">
+
+      <!-- Empty -->
+      <div class="empty-state" id="emptyState">
+        <svg class="empty-diamond" viewBox="0 0 60 60" fill="none">
+          <polygon points="30,5 55,22 45,55 15,55 5,22" stroke="#C9A96E" stroke-width="1.5" fill="none"/>
+          <polygon points="30,5 55,22 30,28" fill="#C9A96E" opacity="0.12"/>
+          <polygon points="5,22 30,28 15,55" fill="#C9A96E" opacity="0.08"/>
+          <polygon points="55,22 45,55 30,28" fill="#C9A96E" opacity="0.08"/>
+          <polygon points="15,55 45,55 30,28" fill="#C9A96E" opacity="0.06"/>
+        </svg>
+        <div class="empty-title">Generate jewellery images</div>
+        <div class="empty-sub">Describe your piece below, upload references, choose format and resolution — then hit Run.</div>
+      </div>
+
+      <!-- Loading -->
+      <div class="loading-state" id="loadingState">
+        <div class="spinner"></div>
+        <div class="loading-text">Rendering your jewellery…</div>
+        <div class="loading-sub" id="loadingNote">Gemini 3 Pro · Signature Studio</div>
+      </div>
+
+      <!-- Result -->
+      <div class="result-state" id="resultState">
+        <img id="resultImage" class="result-image" src="" alt="" onclick="openLightbox(this.src)" title="Click to zoom"/>
+        <div class="result-meta" id="resultMeta"></div>
+        <div class="result-actions">
+          <button class="action-btn" onclick="generate()">↻ Regenerate</button>
+          <button class="action-btn primary" onclick="downloadImage()">↓ Download PNG</button>
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div class="error-state" id="errorState">
+        <div class="error-title">⚠ Generation Failed</div>
+        <div class="error-msg" id="errorMsg"></div>
+        <button class="action-btn" onclick="showState('emptyState')">← Try Again</button>
+      </div>
+
+    </div>
+
+    <!-- BOTTOM INPUT DOCK -->
+    <div class="input-dock">
+      <div class="input-box">
+
+        <!-- Toolbar: ref chips + settings -->
+        <div class="input-toolbar">
+          <!-- Reference type chips -->
+          <div class="ref-chips">
+            <span class="ref-chip-label">Ref:</span>
+            <div class="ref-chip" data-type="Product Ref" onclick="selectChip(this)">
+              <div class="ref-chip-dot"></div>Product Ref
+            </div>
+            <div class="ref-chip" data-type="Design Sketch" onclick="selectChip(this)">
+              <div class="ref-chip-dot"></div>Design Sketch
+            </div>
+            <div class="ref-chip" data-type="Model / Scene" onclick="selectChip(this)">
+              <div class="ref-chip-dot"></div>Model / Scene
+            </div>
+            <div class="ref-chip" data-type="Background" onclick="selectChip(this)">
+              <div class="ref-chip-dot"></div>Background
+            </div>
+          </div>
+
+          <!-- Dropdowns -->
+          <div class="input-settings">
+            <span class="setting-label">Ratio</span>
+            <select class="setting-select" id="ratioSelect" onchange="selectedRatio=this.value">
+              <option value="1:1" selected>1:1 Square</option>
+              <option value="16:9">16:9 Landscape</option>
+              <option value="9:16">9:16 Story</option>
+              <option value="4:3">4:3 Print</option>
+              <option value="3:2">3:2 Photo</option>
+              <option value="2:3">2:3 Poster</option>
+              <option value="3:4">3:4 Portrait</option>
+              <option value="4:5">4:5 Pinterest</option>
+              <option value="21:9">21:9 Billboard</option>
+            </select>
+            <span class="setting-label">Res</span>
+            <select class="setting-select" id="resSelect" onchange="selectedRes=this.value">
+              <option value="1K">1K Draft</option>
+              <option value="2K">2K Pro</option>
+              <option value="4K" selected>4K Print</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Ref image thumbnails (shown when images added) -->
+        <div class="ref-images-strip" id="refStrip"></div>
+
+        <!-- Textarea -->
+        <div class="input-textarea-wrap">
+          <textarea id="prompt" rows="2"
+            placeholder="Describe your jewellery piece — material, setting, style, mood, background…"
+            oninput="autoResize(this)"
+            onkeydown="if(event.key==='Enter'&&(event.metaKey||event.ctrlKey))generate()"></textarea>
+        </div>
+
+        <!-- Bottom actions -->
+        <div class="input-bottom">
+          <div class="input-actions-left">
+            <button class="icon-btn" onclick="document.getElementById('refImgInput').click()" title="Upload reference images">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.3"/><circle cx="5.5" cy="5.5" r="1.5" fill="currentColor" opacity="0.5"/><path d="M1 11l4-4 3 3 2-2 4 4" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Add Images
+              <span class="ref-count-badge" id="refBadge" style="display:none">0</span>
+            </button>
+          </div>
+          <button class="run-btn" id="runBtn" onclick="generate()">
+            <svg class="run-icon" viewBox="0 0 16 16"><path d="M3 2.5l10 5.5-10 5.5V2.5z"/></svg>
+            Run
+          </button>
+        </div>
+
+      </div>
+      <div style="font-size:10px;color:var(--text-3);text-align:center;margin-top:6px;letter-spacing:0.03em;">
+        Cmd+Enter to run · Drag images anywhere to add as reference
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  let selectedRatio = '1:1';
+  let selectedRes = '4K';
+  let lastImageData = null;
+  let refFiles = [];
+  let activeRefType = 'Product Ref';
+
+  // Set default active chip
+  document.querySelector('.ref-chip[data-type="Product Ref"]').classList.add('active');
+
+  function selectChip(el) {
+    document.querySelectorAll('.ref-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    activeRefType = el.dataset.type;
+  }
+
+  function updateStatus() {
+    const key = document.getElementById('apiKey').value.trim();
+    const dot = document.getElementById('modelDot');
+    dot.className = (key.startsWith('sk-') && key.length > 10) ? 'model-dot live' : 'model-dot';
+  }
+
+  function setPrompt(text) {
+    const ta = document.getElementById('prompt');
+    ta.value = text;
+    autoResize(ta);
+    ta.focus();
+  }
+
+  const MANIQUE_PROMPT = `Replace the diamond necklace and earrings in the first image with the exact same design in 2nd image. Don't change the design. Keep the Colour, shape, size, and quality exact same. Add a very little glitter to the diamond to enhance its beauty.
+Keep the earrings in front view. Remove any text
+Keep the font, size, colour, position exact same.
+Make the earrings' overall size 20% smaller.
+Treat the reference jewelry as a finished manufactured product. Reproduce it without modification.`;
+
+  function setManiquePreset() {
+    setPrompt(MANIQUE_PROMPT);
+  }
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 140) + 'px';
+  }
+
+  function handleFileInput(e) {
+    addFiles(Array.from(e.target.files));
+    e.target.value = '';
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    document.body.classList.remove('dragging');
+    const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+    addFiles(files);
+  }
+
+  function addFiles(files) {
+    const remaining = 14 - refFiles.length;
+    if (files.length > remaining) {
+      alert(`Max 14 reference images. Adding first ${remaining}.`);
+      files = files.slice(0, remaining);
+    }
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        refFiles.push({ file, dataUrl: e.target.result, label: activeRefType });
+        renderRefStrip();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function removeRef(i) {
+    refFiles.splice(i, 1);
+    renderRefStrip();
+  }
+
+  function renderRefStrip() {
+    const strip = document.getElementById('refStrip');
+    const badge = document.getElementById('refBadge');
+    strip.innerHTML = '';
+
+    refFiles.forEach((ref, i) => {
+      const item = document.createElement('div');
+      item.className = 'ref-thumb-item';
+      item.innerHTML = `
+        <img src="${ref.dataUrl}" alt="ref"/>
+        <div class="ref-thumb-type">${ref.label.split(' ')[0]}</div>
+        <div class="ref-thumb-remove" onclick="removeRef(${i})">✕</div>
+      `;
+      strip.appendChild(item);
+    });
+
+    if (refFiles.length > 0) {
+      badge.style.display = 'inline';
+      badge.textContent = refFiles.length;
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  function showState(name) {
+    ['emptyState','loadingState','resultState','errorState'].forEach(id => {
+      document.getElementById(id).style.display = 'none';
+    });
+    const el = document.getElementById(name);
+    el.style.display = ['loadingState','resultState','errorState'].includes(name) ? 'flex' : 'flex';
+  }
+
+  async function generate() {
+    const apiKey = document.getElementById('apiKey').value.trim();
+    const prompt = document.getElementById('prompt').value.trim();
+
+    if (!apiKey || !apiKey.startsWith('sk-')) {
+      alert('Please enter your assigned API key in the top-right field (starts with sk-)');
+      document.getElementById('apiKey').focus();
+      return;
+    }
+    if (!prompt) {
+      alert('Please describe your jewellery piece');
+      document.getElementById('prompt').focus();
+      return;
+    }
+
+    selectedRatio = document.getElementById('ratioSelect').value;
+    selectedRes = document.getElementById('resSelect').value;
+
+    document.getElementById('runBtn').disabled = true;
+    showState('loadingState');
+    document.getElementById('loadingNote').textContent =
+      `Gemini 3 Pro · ${selectedRes} · ${selectedRatio}${refFiles.length > 0 ? ` · ${refFiles.length} ref image${refFiles.length > 1 ? 's' : ''}` : ''}`;
+
+    const API_URL = `https://api.laozhang.ai/v1beta/models/gemini-3-pro-image-preview:generateContent`;
+    const parts = [{ text: prompt }];
+
+    for (const ref of refFiles) {
+      parts.push({
+        inline_data: { mime_type: ref.file.type || 'image/jpeg', data: ref.dataUrl.split(',')[1] }
+      });
+    }
+
+    const payload = {
+      contents: [{ parts }],
+      generationConfig: {
+        responseModalities: ['IMAGE'],
+        imageConfig: { aspectRatio: selectedRatio, imageSize: selectedRes }
+      }
+    };
+
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+      if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+
+      const imagePart = data?.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+      if (!imagePart) throw new Error('No image returned. Prompt may have been filtered — try rephrasing.');
+
+      lastImageData = imagePart.inlineData.data;
+      const imgSrc = `data:image/png;base64,${lastImageData}`;
+
+      document.getElementById('resultImage').src = imgSrc;
+      document.getElementById('resultMeta').textContent = `${selectedRatio}  ·  ${selectedRes}  ·  Signature Studio`;
+      showState('resultState');
+      addToHistory(imgSrc);
+
+    } catch (err) {
+      document.getElementById('errorMsg').textContent = err.message;
+      showState('errorState');
+    } finally {
+      document.getElementById('runBtn').disabled = false;
+    }
+  }
+
+  function downloadImage() {
+    if (!lastImageData) return;
+    const a = document.createElement('a');
+    a.href = `data:image/png;base64,${lastImageData}`;
+    a.download = `signature_${selectedRatio.replace(':','x')}_${selectedRes}_${Date.now()}.png`;
+    a.click();
+  }
+
+  function openLightbox(src) {
+    if (!src) return;
+    const box = document.getElementById('lightbox');
+    const img = document.getElementById('lightboxImg');
+    img.src = src;
+    img.classList.remove('zoomed');
+    box.classList.add('open');
+    document.addEventListener('keydown', lightboxKey);
+  }
+
+  function closeLightbox(event, force) {
+    // Only close when clicking the backdrop, the close button, or pressing Esc
+    if (!force && event && event.target !== document.getElementById('lightbox')) return;
+    document.getElementById('lightbox').classList.remove('open');
+    document.removeEventListener('keydown', lightboxKey);
+  }
+
+  function toggleZoom(event) {
+    event.stopPropagation();
+    document.getElementById('lightboxImg').classList.toggle('zoomed');
+  }
+
+  function lightboxKey(e) {
+    if (e.key === 'Escape') closeLightbox(null, true);
+  }
+
+  function downloadLightbox(event) {
+    if (event) event.stopPropagation();
+    const src = document.getElementById('lightboxImg').src;
+    if (!src) return;
+    const a = document.createElement('a');
+    a.href = src;
+    a.download = `signature_${selectedRatio.replace(':','x')}_${selectedRes}_${Date.now()}.png`;
+    a.click();
+  }
+
+  function addToHistory(src) {
+    const grid = document.getElementById('historyGrid');
+    // Remove placeholder
+    const placeholder = grid.querySelector('div[style]');
+    if (placeholder) placeholder.remove();
+
+    const img = document.createElement('img');
+    img.className = 'history-thumb';
+    img.src = src;
+    img.title = `${selectedRatio} · ${selectedRes}`;
+    img.onclick = () => {
+      document.getElementById('resultImage').src = src;
+      showState('resultState');
+    };
+    grid.insertBefore(img, grid.firstChild);
+    while (grid.children.length > 8) grid.removeChild(grid.lastChild);
+  }
+
+  // Global drag detection
+  document.addEventListener('dragenter', e => {
+    if (e.dataTransfer.types.includes('Files')) document.body.classList.add('dragging');
+  });
+  document.addEventListener('dragleave', e => {
+    if (e.clientX === 0 && e.clientY === 0) document.body.classList.remove('dragging');
+  });
+  document.addEventListener('dragend', () => document.body.classList.remove('dragging'));
+</script>
+</body>
+</html>
