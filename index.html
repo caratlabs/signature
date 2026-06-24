@@ -716,6 +716,149 @@ header {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
+/* ── GOOGLE DRIVE CONTROL ── */
+.drive-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: var(--text-2);
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.drive-btn:hover { border-color: var(--border-focus); color: var(--text); }
+.drive-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--text-3);
+  transition: background 0.3s;
+  flex-shrink: 0;
+}
+.drive-dot.connected { background: var(--success); box-shadow: 0 0 5px var(--success); }
+
+/* Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  background: rgba(20,17,15,0.5);
+  backdrop-filter: blur(4px);
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 420px;
+  padding: 24px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+}
+.modal-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+  letter-spacing: 0.02em;
+}
+.modal-sub {
+  font-size: 12px;
+  color: var(--text-3);
+  line-height: 1.5;
+  margin-bottom: 18px;
+}
+.modal-field { margin-bottom: 14px; }
+.modal-field label {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 6px;
+}
+.modal-field input[type="text"] {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 12px;
+  font-family: monospace;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.modal-field input[type="text"]:focus { border-color: var(--border-focus); }
+.modal-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-2);
+  cursor: pointer;
+  margin-bottom: 18px;
+}
+.modal-toggle input { width: 15px; height: 15px; accent-color: var(--gold); cursor: pointer; }
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.modal-status {
+  font-size: 11px;
+  margin-bottom: 14px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  line-height: 1.4;
+  display: none;
+}
+.modal-status.show { display: block; }
+.modal-status.ok { background: #F0FDF4; border: 1px solid #BBF7D0; color: #15803D; }
+.modal-status.warn { background: #FEF2F2; border: 1px solid #FECACA; color: var(--error); }
+.modal-hint {
+  font-size: 10.5px;
+  color: var(--text-3);
+  line-height: 1.5;
+  margin-top: 2px;
+}
+.modal-hint a { color: var(--gold-mid); }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--text);
+  color: #fff;
+  font-size: 12px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  z-index: 1200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast .toast-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); }
+.toast.err .toast-dot { background: var(--error); }
+
 /* Drag overlay */
 .drag-overlay {
   display: none;
@@ -734,10 +877,11 @@ header {
 body.dragging .drag-overlay { display: flex; }
 
 </style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
-<div class="drag-overlay">Drop images to add as references</div>
+<div class="drag-overlay" id="dragOverlay">Drop images to add as references</div>
 
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
@@ -750,6 +894,36 @@ body.dragging .drag-overlay { display: flex; }
 </div>
 <input type="file" id="refImgInput" accept="image/*" multiple onchange="handleFileInput(event)"/>
 
+<!-- GOOGLE DRIVE SETTINGS MODAL -->
+<div class="modal-overlay" id="driveModal" onclick="if(event.target===this)closeDriveModal()">
+  <div class="modal">
+    <div class="modal-title">Google Drive Auto-Save</div>
+    <div class="modal-sub">Automatically save every generated image to your Google Drive so nothing is lost on refresh. Uploads run in the background and don't slow down generation.</div>
+
+    <div class="modal-status" id="driveStatus"></div>
+
+    <div class="modal-field" id="driveClientIdField">
+      <label>OAuth Client ID</label>
+      <input type="text" id="driveClientId" placeholder="xxxxxxxx.apps.googleusercontent.com" oninput="saveDriveSettings()"/>
+      <div class="modal-hint">Create a Web OAuth Client ID in Google Cloud Console (enable the Google Drive API, add this page's origin to Authorized JavaScript origins). The app uses the minimal <code>drive.file</code> scope — it can only access files it creates.</div>
+    </div>
+
+    <label class="modal-toggle">
+      <input type="checkbox" id="driveAutoSave" checked onchange="saveDriveSettings()"/>
+      Auto-save generated images to Drive
+    </label>
+
+    <div class="modal-actions">
+      <button class="action-btn" onclick="disconnectDrive()" id="driveDisconnectBtn" style="display:none">Disconnect</button>
+      <button class="action-btn" onclick="closeDriveModal()">Close</button>
+      <button class="action-btn primary" id="driveConnectBtn" onclick="connectDrive()">Connect Google Drive</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><span class="toast-dot"></span><span id="toastText"></span></div>
+
 <!-- HEADER -->
 <header>
   <div class="header-left">
@@ -761,6 +935,10 @@ body.dragging .drag-overlay { display: flex; }
     </div>
   </div>
   <div class="header-right">
+    <button class="drive-btn" id="driveBtn" onclick="openDriveModal()" title="Google Drive auto-save settings">
+      <span class="drive-dot" id="driveDot"></span>
+      <span id="driveBtnText">Drive: Off</span>
+    </button>
     <div class="api-input-wrap">
       <input type="password" id="apiKey" placeholder="API Key (sk-...)" oninput="updateStatus()" autocomplete="off"/>
     </div>
@@ -818,10 +996,7 @@ body.dragging .drag-overlay { display: flex; }
   <div class="canvas-wrap">
 
     <!-- OUTPUT AREA -->
-    <div class="output-area" id="outputArea"
-      ondragover="event.preventDefault(); document.body.classList.add('dragging')"
-      ondragleave="document.body.classList.remove('dragging')"
-      ondrop="handleDrop(event)">
+    <div class="output-area" id="outputArea">
 
       <!-- Empty -->
       <div class="empty-state" id="emptyState">
@@ -887,6 +1062,12 @@ body.dragging .drag-overlay { display: flex; }
 
           <!-- Dropdowns -->
           <div class="input-settings">
+            <span class="setting-label">Model</span>
+            <select class="setting-select" id="modelSelect" onchange="selectModel(this.value)">
+              <option value="gemini-3-pro-image-preview" selected>Nano Banana Pro</option>
+              <option value="gemini-3.1-flash-image-preview">Nano Banana2</option>
+              <option value="gemini-2.5-flash-image">Nano Banana</option>
+            </select>
             <span class="setting-label">Ratio</span>
             <select class="setting-select" id="ratioSelect" onchange="selectedRatio=this.value">
               <option value="1:1" selected>1:1 Square</option>
@@ -946,9 +1127,370 @@ body.dragging .drag-overlay { display: flex; }
 <script>
   let selectedRatio = '1:1';
   let selectedRes = '4K';
+  let selectedModel = 'gemini-3-pro-image-preview';
   let lastImageData = null;
+  let lastImageMime = 'image/png';
+  let isGenerating = false;
   let refFiles = [];
   let activeRefType = 'Product Ref';
+
+  const API_KEY_STORE = 'signatureStudioApiKey';
+
+  // Restore saved API key from localStorage on page load
+  (function restoreApiKey() {
+    try {
+      const saved = localStorage.getItem(API_KEY_STORE);
+      if (saved) {
+        document.getElementById('apiKey').value = saved;
+        updateStatus();
+      }
+    } catch (e) { /* localStorage unavailable */ }
+  })();
+
+  /* ───────────────── GOOGLE DRIVE AUTO-SAVE ───────────────── */
+  // ▼▼▼ SET THIS ONCE ▼▼▼
+  // Paste your Web OAuth Client ID here. When set, end-users are NEVER asked for it —
+  // they only see the Google login/consent popup. The Client ID is not a secret; it
+  // identifies this app. Security comes from the "Authorized JavaScript origins" list
+  // in Google Cloud Console (add the exact origin this page is served from).
+  const DRIVE_CLIENT_ID = '';
+  // ▲▲▲ SET THIS ONCE ▲▲▲
+
+  const DRIVE_SETTINGS_STORE = 'signatureStudioDriveSettings';
+  const DRIVE_FOLDER_STORE = 'signatureStudioDriveFolderId';
+  const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+  const DRIVE_FOLDER_NAME = 'Signature Studio';
+
+  let driveTokenClient = null;
+  let driveAccessToken = null;
+  let driveTokenExpiry = 0;       // epoch ms
+  let driveConnected = false;
+  let driveFolderId = null;
+
+  // The Client ID baked into the app takes precedence; the manual field is only a fallback.
+  function effectiveClientId() {
+    if (DRIVE_CLIENT_ID && DRIVE_CLIENT_ID.trim()) return DRIVE_CLIENT_ID.trim();
+    const el = document.getElementById('driveClientId');
+    return el ? el.value.trim() : '';
+  }
+
+  function loadDriveSettings() {
+    let s = { clientId: '', autoSave: true };
+    try {
+      const raw = localStorage.getItem(DRIVE_SETTINGS_STORE);
+      if (raw) s = { ...s, ...JSON.parse(raw) };
+    } catch (e) {}
+    try { driveFolderId = localStorage.getItem(DRIVE_FOLDER_STORE) || null; } catch (e) {}
+    const idEl = document.getElementById('driveClientId');
+    const autoEl = document.getElementById('driveAutoSave');
+    if (idEl) idEl.value = s.clientId || '';
+    if (autoEl) autoEl.checked = s.autoSave !== false;
+
+    // If a Client ID is hardcoded, hide the manual field entirely
+    if (DRIVE_CLIENT_ID && DRIVE_CLIENT_ID.trim()) {
+      const field = document.getElementById('driveClientIdField');
+      if (field) field.style.display = 'none';
+    }
+    return s;
+  }
+
+  function saveDriveSettings() {
+    const idEl = document.getElementById('driveClientId');
+    const settings = {
+      clientId: idEl ? idEl.value.trim() : '',
+      autoSave: document.getElementById('driveAutoSave').checked
+    };
+    try { localStorage.setItem(DRIVE_SETTINGS_STORE, JSON.stringify(settings)); } catch (e) {}
+    return settings;
+  }
+
+  function getDriveSettings() {
+    return {
+      clientId: effectiveClientId(),
+      autoSave: document.getElementById('driveAutoSave').checked
+    };
+  }
+
+  function openDriveModal() {
+    document.getElementById('driveModal').classList.add('open');
+    setDriveStatus('', '');
+  }
+  function closeDriveModal() {
+    document.getElementById('driveModal').classList.remove('open');
+  }
+
+  function setDriveStatus(msg, type) {
+    const el = document.getElementById('driveStatus');
+    if (!msg) { el.className = 'modal-status'; el.textContent = ''; return; }
+    el.textContent = msg;
+    el.className = 'modal-status show ' + (type || 'ok');
+  }
+
+  function updateDriveUI() {
+    const dot = document.getElementById('driveDot');
+    const text = document.getElementById('driveBtnText');
+    const connectBtn = document.getElementById('driveConnectBtn');
+    const disconnectBtn = document.getElementById('driveDisconnectBtn');
+    if (driveConnected) {
+      dot.classList.add('connected');
+      text.textContent = 'Drive: On';
+      connectBtn.textContent = 'Reconnect';
+      disconnectBtn.style.display = 'inline-flex';
+    } else {
+      dot.classList.remove('connected');
+      text.textContent = 'Drive: Off';
+      connectBtn.textContent = 'Connect Google Drive';
+      disconnectBtn.style.display = 'none';
+    }
+  }
+
+  function ensureTokenClient(clientId) {
+    if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
+      throw new Error('Google services not loaded yet. Please wait a moment and try again.');
+    }
+    if (!driveTokenClient || driveTokenClient._clientId !== clientId) {
+      driveTokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: clientId,
+        scope: DRIVE_SCOPE,
+        callback: () => {} // set per-request
+      });
+      driveTokenClient._clientId = clientId;
+    }
+    return driveTokenClient;
+  }
+
+  // Request an access token. interactive=true shows the consent/login popup.
+  function requestDriveToken(interactive) {
+    return new Promise((resolve, reject) => {
+      const settings = getDriveSettings();
+      if (!settings.clientId) { reject(new Error('Please enter your OAuth Client ID first.')); return; }
+      let client;
+      try { client = ensureTokenClient(settings.clientId); }
+      catch (e) { reject(e); return; }
+
+      client.callback = (resp) => {
+        if (resp.error) {
+          // User declined consent or another OAuth error
+          reject(new Error(resp.error === 'access_denied'
+            ? 'Permission declined. Images will not be saved to Drive.'
+            : (resp.error_description || resp.error)));
+          return;
+        }
+        driveAccessToken = resp.access_token;
+        driveTokenExpiry = Date.now() + ((parseInt(resp.expires_in, 10) || 3600) - 60) * 1000;
+        driveConnected = true;
+        updateDriveUI();
+        resolve(driveAccessToken);
+      };
+
+      try {
+        client.requestAccessToken({ prompt: interactive ? 'consent' : '' });
+      } catch (e) { reject(e); }
+    });
+  }
+
+  async function connectDrive() {
+    saveDriveSettings();
+    if (!effectiveClientId()) {
+      setDriveStatus('No OAuth Client ID configured. Add one in the code (DRIVE_CLIENT_ID) or the field above.', 'warn');
+      return;
+    }
+    setDriveStatus('Opening Google sign-in…', 'ok');
+    try {
+      await requestDriveToken(true);
+      await ensureDriveFolder();
+      setDriveStatus('Connected. Generated images will be saved to your Drive automatically.', 'ok');
+    } catch (err) {
+      driveConnected = false;
+      updateDriveUI();
+      setDriveStatus(err.message || 'Could not connect to Google Drive.', 'warn');
+    }
+  }
+
+  function disconnectDrive() {
+    if (driveAccessToken && typeof google !== 'undefined' && google.accounts?.oauth2) {
+      try { google.accounts.oauth2.revoke(driveAccessToken, () => {}); } catch (e) {}
+    }
+    driveAccessToken = null;
+    driveTokenExpiry = 0;
+    driveConnected = false;
+    updateDriveUI();
+    setDriveStatus('Disconnected. Images will no longer be saved to Drive.', 'warn');
+  }
+
+  // Returns a valid token, silently refreshing if expired. Never forces an interactive popup.
+  async function getValidDriveToken() {
+    if (driveAccessToken && Date.now() < driveTokenExpiry) return driveAccessToken;
+    return await requestDriveToken(false); // silent refresh (works if already consented)
+  }
+
+  // Find or create the "Signature Studio" folder in Drive
+  async function ensureDriveFolder() {
+    if (driveFolderId) return driveFolderId;
+    const token = await getValidDriveToken();
+    // Search among files this app created
+    const q = encodeURIComponent(`mimeType='application/vnd.google-apps.folder' and name='${DRIVE_FOLDER_NAME}' and trashed=false`);
+    const searchRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)&spaces=drive`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const searchData = await searchRes.json();
+    if (searchData.files && searchData.files.length > 0) {
+      driveFolderId = searchData.files[0].id;
+    } else {
+      const createRes = await fetch('https://www.googleapis.com/drive/v3/files', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: DRIVE_FOLDER_NAME, mimeType: 'application/vnd.google-apps.folder' })
+      });
+      const createData = await createRes.json();
+      if (createData.error) throw new Error(createData.error.message || 'Could not create Drive folder.');
+      driveFolderId = createData.id;
+    }
+    try { localStorage.setItem(DRIVE_FOLDER_STORE, driveFolderId); } catch (e) {}
+    return driveFolderId;
+  }
+
+  function base64ToBlob(base64, mime) {
+    const bytes = atob(base64);
+    const arr = new Uint8Array(bytes.length);
+    for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+    return new Blob([arr], { type: mime });
+  }
+
+  // Background, non-blocking upload of a generated image to Drive
+  async function saveToDriveInBackground(base64Data, fileName, mimeType) {
+    const settings = getDriveSettings();
+    if (!settings.autoSave || !settings.clientId || !driveConnected) return;
+    try {
+      const token = await getValidDriveToken();
+      const folderId = await ensureDriveFolder();
+      const metadata = { name: fileName, parents: folderId ? [folderId] : undefined };
+      const form = new FormData();
+      form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+      form.append('file', base64ToBlob(base64Data, mimeType || 'image/png'));
+
+      const res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: form
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message || 'Drive upload failed.');
+      showToast('Saved to Google Drive', false);
+    } catch (err) {
+      // If the session needs re-consent or any failure, notify without blocking generation
+      driveConnected = driveConnected && !/login|consent|interaction|token/i.test(err.message || '');
+      updateDriveUI();
+      showToast('Drive save failed: ' + (err.message || 'unknown error'), true);
+    }
+  }
+
+  let toastTimer = null;
+  function showToast(msg, isError) {
+    const toast = document.getElementById('toast');
+    document.getElementById('toastText').textContent = msg;
+    toast.classList.toggle('err', !!isError);
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
+  }
+
+  // Initialise Drive settings/UI on load
+  loadDriveSettings();
+  updateDriveUI();
+  // Attempt a silent reconnect if the user previously connected and entered a client id
+  window.addEventListener('load', () => {
+    const settings = getDriveSettings();
+    if (settings.clientId && settings.autoSave) {
+      const trySilent = () => {
+        if (typeof google === 'undefined' || !google.accounts?.oauth2) { setTimeout(trySilent, 400); return; }
+        requestDriveToken(false).then(() => ensureDriveFolder()).catch(() => {/* needs interactive connect */});
+      };
+      trySilent();
+    }
+  });
+
+  // Maps the API model id to a friendly display name shown in loading/meta text
+  const MODEL_LABELS = {
+    'gemini-3-pro-image-preview': 'Nano Banana Pro',
+    'gemini-3.1-flash-image-preview': 'Nano Banana2',
+    'gemini-2.5-flash-image': 'Nano Banana'
+  };
+
+  // Short numeric identifier used in downloaded/saved file names
+  const MODEL_NUMBERS = {
+    'gemini-3-pro-image-preview': '1',   // Nano Banana Pro
+    'gemini-3.1-flash-image-preview': '2', // Nano Banana2
+    'gemini-2.5-flash-image': '3'        // Nano Banana
+  };
+
+  // Build a consistent file name for the most recent generation
+  function buildFileName(ext) {
+    const modelNum = MODEL_NUMBERS[selectedModel] || '0';
+    return `signature_${modelNum}_${selectedRatio.replace(':','x')}_${selectedRes}_${Date.now()}.${ext}`;
+  }
+
+  // Models restricted to 1K-only resolution
+  const ONE_K_ONLY_MODELS = ['gemini-2.5-flash-image'];
+
+  // Pick a correct file extension for the image's actual mime type
+  function extForMime(mime) {
+    const map = {
+      'image/png': 'png',
+      'image/jpeg': 'jpg',
+      'image/jpg': 'jpg',
+      'image/webp': 'webp',
+      'image/gif': 'gif'
+    };
+    return map[(mime || '').toLowerCase()] || 'png';
+  }
+
+  // Translate common Chinese error messages from the laozhang API into English
+  const ERROR_TRANSLATIONS = [
+    [/余额不足|账户余额不足|余额已用完/, 'Insufficient account balance. Please top up your laozhang API account.'],
+    [/(令牌|密钥|api\s*key).*(额度|配额).*(用尽|耗尽|不足|超出)|额度已用尽|配额已用完/i, 'API key quota has been used up. Please check your plan or top up.'],
+    [/(无效|错误|不正确|非法).*(令牌|密钥|key)|令牌无效|无效的令牌|鉴权失败|认证失败/i, 'Invalid API key. Please check the key entered in the top-right field.'],
+    [/(令牌|密钥|key).*(过期|失效)|已过期/i, 'Your API key has expired. Please generate a new one.'],
+    [/请求过于频繁|访问过于频繁|频率超限|速率限制|请求频率/, 'Too many requests. Please wait a moment and try again.'],
+    [/(上游|分组).*(负载|饱和|繁忙)|负载已饱和|当前分组上游负载已饱和/, 'The image service is busy right now (upstream overloaded). Please try again shortly.'],
+    [/系统繁忙|服务繁忙|服务器繁忙|服务暂时不可用|服务不可用/, 'The service is temporarily busy. Please try again shortly.'],
+    [/(内容|提示词|图片).*(违规|敏感|拦截|过滤|安全)|被安全系统拦截|触发.*安全|内容审核未通过/, 'The prompt or image was blocked by the content safety filter. Try rephrasing or using different references.'],
+    [/(模型).*(不存在|未找到|不支持|无效)|无可用渠道|没有可用渠道|当前分组.*无可用/, 'The selected model is unavailable. Try a different model.'],
+    [/超时|请求超时|网络错误|网络异常/, 'The request timed out or a network error occurred. Please try again.'],
+    [/参数错误|请求错误|请求参数/, 'Invalid request parameters were sent to the API.'],
+    [/权限不足|无权限|禁止访问/, 'Your API key does not have permission for this operation.']
+  ];
+
+  function translateError(msg) {
+    if (!msg) return 'An unknown error occurred.';
+    let text = String(msg);
+    for (const [pattern, english] of ERROR_TRANSLATIONS) {
+      if (pattern.test(text)) return english;
+    }
+    // If the message still contains Chinese characters we couldn't map, show a generic English fallback
+    if (/[\u4e00-\u9fff]/.test(text)) {
+      return `The image service returned an error. Please try again. (Original: ${text})`;
+    }
+    return text;
+  }
+
+  function selectModel(value) {
+    selectedModel = value;
+    const resSelect = document.getElementById('resSelect');
+    if (ONE_K_ONLY_MODELS.includes(value)) {
+      // Nano Banana supports 1K only — hide 2K/4K and force 1K
+      Array.from(resSelect.options).forEach(opt => {
+        opt.hidden = opt.value !== '1K';
+      });
+      resSelect.value = '1K';
+      selectedRes = '1K';
+    } else {
+      // Nano Banana Pro / Nano Banana2 — all resolutions, default to 4K
+      Array.from(resSelect.options).forEach(opt => { opt.hidden = false; });
+      resSelect.value = '4K';
+      selectedRes = '4K';
+    }
+  }
 
   // Set default active chip
   document.querySelector('.ref-chip[data-type="Product Ref"]').classList.add('active');
@@ -995,8 +1537,12 @@ Treat the reference jewelry as a finished manufactured product. Reproduce it wit
   function handleDrop(e) {
     e.preventDefault();
     document.body.classList.remove('dragging');
+    if (isGenerating) {
+      alert('An image is currently being generated. Please wait until it finishes before adding new reference images. Your image will keep generating.');
+      return;
+    }
     const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
-    addFiles(files);
+    if (files.length) addFiles(files);
   }
 
   function addFiles(files) {
@@ -1067,15 +1613,21 @@ Treat the reference jewelry as a finished manufactured product. Reproduce it wit
       return;
     }
 
+    // Persist the API key so it's remembered across page refreshes
+    try { localStorage.setItem(API_KEY_STORE, apiKey); } catch (e) { /* localStorage unavailable */ }
+
     selectedRatio = document.getElementById('ratioSelect').value;
     selectedRes = document.getElementById('resSelect').value;
+    selectedModel = document.getElementById('modelSelect').value;
+    const modelLabel = MODEL_LABELS[selectedModel] || selectedModel;
 
     document.getElementById('runBtn').disabled = true;
+    isGenerating = true;
     showState('loadingState');
     document.getElementById('loadingNote').textContent =
-      `Gemini 3 Pro · ${selectedRes} · ${selectedRatio}${refFiles.length > 0 ? ` · ${refFiles.length} ref image${refFiles.length > 1 ? 's' : ''}` : ''}`;
+      `${modelLabel} · ${selectedRes} · ${selectedRatio}${refFiles.length > 0 ? ` · ${refFiles.length} ref image${refFiles.length > 1 ? 's' : ''}` : ''}`;
 
-    const API_URL = `https://api.laozhang.ai/v1beta/models/gemini-3-pro-image-preview:generateContent`;
+    const API_URL = `https://api.laozhang.ai/v1beta/models/${selectedModel}:generateContent`;
     const parts = [{ text: prompt }];
 
     for (const ref of refFiles) {
@@ -1106,26 +1658,32 @@ Treat the reference jewelry as a finished manufactured product. Reproduce it wit
       if (!imagePart) throw new Error('No image returned. Prompt may have been filtered — try rephrasing.');
 
       lastImageData = imagePart.inlineData.data;
-      const imgSrc = `data:image/png;base64,${lastImageData}`;
+      lastImageMime = imagePart.inlineData.mimeType || 'image/png';
+      const imgSrc = `data:${lastImageMime};base64,${lastImageData}`;
 
       document.getElementById('resultImage').src = imgSrc;
-      document.getElementById('resultMeta').textContent = `${selectedRatio}  ·  ${selectedRes}  ·  Signature Studio`;
+      document.getElementById('resultMeta').textContent = `${modelLabel}  ·  ${selectedRatio}  ·  ${selectedRes}  ·  Signature Studio`;
       showState('resultState');
       addToHistory(imgSrc);
 
+      // Fire-and-forget: save to Google Drive in the background (does not block or delay generation)
+      const driveFileName = buildFileName(extForMime(lastImageMime));
+      saveToDriveInBackground(lastImageData, driveFileName, lastImageMime);
+
     } catch (err) {
-      document.getElementById('errorMsg').textContent = err.message;
+      document.getElementById('errorMsg').textContent = translateError(err.message);
       showState('errorState');
     } finally {
       document.getElementById('runBtn').disabled = false;
+      isGenerating = false;
     }
   }
 
   function downloadImage() {
     if (!lastImageData) return;
     const a = document.createElement('a');
-    a.href = `data:image/png;base64,${lastImageData}`;
-    a.download = `signature_${selectedRatio.replace(':','x')}_${selectedRes}_${Date.now()}.png`;
+    a.href = `data:${lastImageMime};base64,${lastImageData}`;
+    a.download = buildFileName(extForMime(lastImageMime));
     a.click();
   }
 
@@ -1159,9 +1717,13 @@ Treat the reference jewelry as a finished manufactured product. Reproduce it wit
     if (event) event.stopPropagation();
     const src = document.getElementById('lightboxImg').src;
     if (!src) return;
+    // Derive extension from the data URL's mime type when available
+    let ext = 'png';
+    const m = /^data:([^;]+);/.exec(src);
+    if (m) ext = extForMime(m[1]);
     const a = document.createElement('a');
     a.href = src;
-    a.download = `signature_${selectedRatio.replace(':','x')}_${selectedRes}_${Date.now()}.png`;
+    a.download = buildFileName(ext);
     a.click();
   }
 
@@ -1183,14 +1745,30 @@ Treat the reference jewelry as a finished manufactured product. Reproduce it wit
     while (grid.children.length > 8) grid.removeChild(grid.lastChild);
   }
 
-  // Global drag detection
+  // Global drag-and-drop: allow dropping images anywhere on the screen
+  function dragHasFiles(e) {
+    return e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files');
+  }
+
   document.addEventListener('dragenter', e => {
-    if (e.dataTransfer.types.includes('Files')) document.body.classList.add('dragging');
+    if (dragHasFiles(e)) document.body.classList.add('dragging');
+  });
+  // dragover must preventDefault so the drop event can fire across the whole page
+  document.addEventListener('dragover', e => {
+    if (dragHasFiles(e)) {
+      e.preventDefault();
+      document.body.classList.add('dragging');
+      document.getElementById('dragOverlay').textContent = isGenerating
+        ? 'Generating… you can add reference images once it finishes'
+        : 'Drop images to add as references';
+    }
   });
   document.addEventListener('dragleave', e => {
     if (e.clientX === 0 && e.clientY === 0) document.body.classList.remove('dragging');
   });
   document.addEventListener('dragend', () => document.body.classList.remove('dragging'));
+  // Single document-level drop handler (works anywhere on the page)
+  document.addEventListener('drop', handleDrop);
 </script>
 </body>
 </html>
