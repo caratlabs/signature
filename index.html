@@ -1236,15 +1236,12 @@ body.dragging .drag-overlay { display: flex; }
     setDriveStatus('', '');
   }
 
-  // Clicking the header "Drive" button:
-  //  - When OFF: start the Google Drive connection (OAuth popup) immediately.
-  //  - When ON:  open the settings modal (to reconnect / disconnect).
+  // Clicking the header "Drive" button always opens the settings modal.
+  //  - When OFF: modal shows "Close" + "Connect Google Drive".
+  //  - When ON:  modal shows "Disconnect" + "Close" + "Reconnect".
+  // Connection only happens when the user explicitly clicks Connect/Reconnect.
   function handleDriveBtn() {
-    if (driveConnected) {
-      openDriveModal();
-    } else {
-      connectDrive();
-    }
+    openDriveModal();
   }
   function closeDriveModal() {
     document.getElementById('driveModal').classList.remove('open');
