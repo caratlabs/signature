@@ -1178,6 +1178,7 @@ body.dragging .drag-overlay { display: flex; }
 
   const DRIVE_SETTINGS_STORE = 'signatureStudioDriveSettings';
   const DRIVE_FOLDER_STORE = 'signatureStudioDriveFolderId';
+  const DRIVE_TOKEN_STORE = 'signatureStudioDriveToken';
   const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
   const DRIVE_FOLDER_NAME = 'Signature Studio';
 
@@ -1287,6 +1288,42 @@ body.dragging .drag-overlay { display: flex; }
     return driveTokenClient;
   }
 
+  // Persist the current access token + expiry so a page refresh can reuse it
+  // (within its ~1 hour lifetime) without re-prompting for connection.
+  function persistDriveToken() {
+    try {
+      if (driveAccessToken && driveTokenExpiry) {
+        localStorage.setItem(DRIVE_TOKEN_STORE, JSON.stringify({
+          token: driveAccessToken,
+          expiry: driveTokenExpiry
+        }));
+      }
+    } catch (e) {}
+  }
+
+  function clearDriveToken() {
+    try { localStorage.removeItem(DRIVE_TOKEN_STORE); } catch (e) {}
+  }
+
+  // Restore a still-valid token from a previous session. Returns true if a usable
+  // token was restored (no popup needed), false otherwise.
+  function restoreDriveToken() {
+    try {
+      const raw = localStorage.getItem(DRIVE_TOKEN_STORE);
+      if (!raw) return false;
+      const saved = JSON.parse(raw);
+      if (saved && saved.token && saved.expiry && Date.now() < saved.expiry) {
+        driveAccessToken = saved.token;
+        driveTokenExpiry = saved.expiry;
+        driveConnected = true;
+        return true;
+      }
+      // Expired — drop it so we don't surprise the user with a popup later
+      clearDriveToken();
+    } catch (e) {}
+    return false;
+  }
+
   // Request an access token. interactive=true shows the consent/login popup.
   function requestDriveToken(interactive) {
     return new Promise((resolve, reject) => {
@@ -1307,6 +1344,7 @@ body.dragging .drag-overlay { display: flex; }
         driveAccessToken = resp.access_token;
         driveTokenExpiry = Date.now() + ((parseInt(resp.expires_in, 10) || 3600) - 60) * 1000;
         driveConnected = true;
+        persistDriveToken();
         updateDriveUI();
         resolve(driveAccessToken);
       };
@@ -1328,7 +1366,9 @@ body.dragging .drag-overlay { display: flex; }
     try {
       await requestDriveToken(true);
       await ensureDriveFolder();
-      setDriveStatus('Connected. Generated images will be saved to your Drive automatically.', 'ok');
+      // Success: no persistent status box — just close the modal and show a brief toast.
+      setDriveStatus('', '');
+      closeDriveModal();
       showToast('Google Drive connected', false);
     } catch (err) {
       driveConnected = false;
@@ -1345,6 +1385,7 @@ body.dragging .drag-overlay { display: flex; }
     driveAccessToken = null;
     driveTokenExpiry = 0;
     driveConnected = false;
+    clearDriveToken();
     updateDriveUI();
     setDriveStatus('Disconnected. Images will no longer be saved to Drive.', 'warn');
   }
@@ -1428,9 +1469,13 @@ body.dragging .drag-overlay { display: flex; }
 
   // Initialise Drive settings/UI on load
   loadDriveSettings();
+  // Reuse a still-valid token from a previous session so a refresh stays connected
+  // WITHOUT triggering any Google popup. If the saved token has expired it's discarded
+  // and the user simply sees "Drive: Off" until they reconnect.
+  restoreDriveToken();
   updateDriveUI();
-  // Note: Google Drive connects ONLY when the user clicks the "Drive: Off" button.
-  // No silent auto-reconnect happens on page load.
+  // Note: no Google popup is ever shown on page load. Connection only happens when the
+  // user clicks Connect/Reconnect in the modal. A live token is persisted and reused.
 
   // Maps the API model id to a friendly display name shown in loading/meta text
   const MODEL_LABELS = {
