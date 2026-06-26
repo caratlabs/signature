@@ -337,6 +337,74 @@ header {
 }
 .result-image:hover { transform: scale(1.01); }
 
+/* Dual result (original + compressed) */
+.result-images {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+.result-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+}
+.result-images.two-up .result-card { max-width: 46%; }
+.result-images.two-up .result-card .result-image { max-height: calc(100vh - 500px); }
+.result-card-label {
+  font-size: 11px;
+  color: var(--text-2);
+  letter-spacing: 0.03em;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.result-card-label .rc-tag {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.result-card-label .rc-size { font-weight: 600; color: var(--text); }
+.result-card-label .rc-save {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--success);
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  border-radius: 10px;
+  padding: 1px 7px;
+}
+
+/* Compression toggle in input toolbar */
+.compress-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  cursor: pointer;
+  user-select: none;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 9px;
+  transition: border-color 0.15s, color 0.15s;
+}
+.compress-toggle:hover { border-color: var(--gold-light); color: var(--text); }
+.compress-toggle input { width: 13px; height: 13px; accent-color: var(--gold); cursor: pointer; margin: 0; }
+
 /* ── LIGHTBOX ── */
 .lightbox {
   display: none;
@@ -1040,11 +1108,30 @@ body.dragging .drag-overlay { display: flex; }
 
       <!-- Result -->
       <div class="result-state" id="resultState">
-        <img id="resultImage" class="result-image" src="" alt="" onclick="openLightbox(this.src)" title="Click to zoom"/>
+        <div class="result-images" id="resultImages">
+          <!-- Original -->
+          <div class="result-card" id="cardOriginal">
+            <img id="resultImage" class="result-image" src="" alt="" onclick="openLightbox(this.src)" title="Click to zoom"/>
+            <div class="result-card-label" id="origLabel">
+              <span class="rc-tag">Original</span>
+              <span class="rc-size" id="origSize"></span>
+            </div>
+            <button class="action-btn" onclick="downloadImage()">↓ Download Original</button>
+          </div>
+          <!-- Compressed -->
+          <div class="result-card" id="cardCompressed" style="display:none">
+            <img id="resultImageCompressed" class="result-image" src="" alt="" onclick="openLightbox(this.src)" title="Click to zoom"/>
+            <div class="result-card-label" id="compLabel">
+              <span class="rc-tag">Compressed</span>
+              <span class="rc-size" id="compSize"></span>
+              <span class="rc-save" id="compSaveBadge">Saved to Drive</span>
+            </div>
+            <button class="action-btn primary" onclick="downloadCompressed()">↓ Download Compressed</button>
+          </div>
+        </div>
         <div class="result-meta" id="resultMeta"></div>
         <div class="result-actions">
           <button class="action-btn" onclick="generate()">↻ Regenerate</button>
-          <button class="action-btn primary" onclick="downloadImage()">↓ Download PNG</button>
         </div>
       </div>
 
@@ -1082,6 +1169,10 @@ body.dragging .drag-overlay { display: flex; }
 
           <!-- Dropdowns -->
           <div class="input-settings">
+            <label class="compress-toggle" title="Compress the generated image to a much smaller file with no visible quality loss. When on, both the original and compressed versions are shown; only the compressed one is saved to Google Drive.">
+              <input type="checkbox" id="compressToggle"/>
+              Compression
+            </label>
             <span class="setting-label">Model</span>
             <select class="setting-select" id="modelSelect" onchange="selectModel(this.value)">
               <option value="gemini-3-pro-image-preview" selected>Nano Banana Pro</option>
@@ -1150,6 +1241,8 @@ body.dragging .drag-overlay { display: flex; }
   let selectedModel = 'gemini-3-pro-image-preview';
   let lastImageData = null;
   let lastImageMime = 'image/png';
+  let lastCompressedData = null;
+  let lastCompressedMime = 'image/jpeg';
   let isGenerating = false;
   let refFiles = [];
   let activeRefType = 'Product Ref';
@@ -1763,12 +1856,59 @@ Treat the reference jewelry as a finished manufactured product. Reproduce it wit
 
       document.getElementById('resultImage').src = imgSrc;
       document.getElementById('resultMeta').textContent = `${modelLabel}  ·  ${selectedRatio}  ·  ${selectedRes}  ·  Signature Studio`;
-      showState('resultState');
       addToHistory(imgSrc);
 
-      // Fire-and-forget: save to Google Drive in the background (does not block or delay generation)
-      const driveFileName = buildFileName(extForMime(lastImageMime));
-      saveToDriveInBackground(lastImageData, driveFileName, lastImageMime);
+      const compressOn = document.getElementById('compressToggle').checked;
+      const originalSize = base64Bytes(lastImageData);
+      const resultImages = document.getElementById('resultImages');
+      const cardCompressed = document.getElementById('cardCompressed');
+      const origLabelTag = document.querySelector('#origLabel .rc-tag');
+
+      if (compressOn) {
+        // Build a visually-lossless compressed copy at the same dimensions
+        try {
+          const compressed = await compressImageData(lastImageData, lastImageMime, 0.82);
+          lastCompressedData = compressed.base64;
+          lastCompressedMime = compressed.mime;
+
+          document.getElementById('resultImageCompressed').src = compressed.dataUrl;
+          document.getElementById('origSize').textContent = formatBytes(originalSize);
+          document.getElementById('compSize').textContent =
+            formatBytes(compressed.size) + ` (−${Math.max(0, Math.round((1 - compressed.size / originalSize) * 100))}%)`;
+          origLabelTag.textContent = 'Original';
+          cardCompressed.style.display = 'flex';
+          resultImages.classList.add('two-up');
+          document.getElementById('compSaveBadge').style.display =
+            (driveConnected && document.getElementById('driveAutoSave').checked) ? 'inline-block' : 'none';
+          showState('resultState');
+
+          // Only the compressed version is saved to Google Drive
+          const driveFileName = buildFileName(extForMime(lastCompressedMime));
+          saveToDriveInBackground(lastCompressedData, driveFileName, lastCompressedMime);
+        } catch (compErr) {
+          // If compression fails, fall back to showing/saving just the original
+          lastCompressedData = null;
+          cardCompressed.style.display = 'none';
+          resultImages.classList.remove('two-up');
+          document.getElementById('origSize').textContent = formatBytes(originalSize);
+          origLabelTag.textContent = 'Generated';
+          showState('resultState');
+          showToast('Compression unavailable — showing original only', true);
+          const driveFileName = buildFileName(extForMime(lastImageMime));
+          saveToDriveInBackground(lastImageData, driveFileName, lastImageMime);
+        }
+      } else {
+        // Compression off: single image, original saved to Drive
+        lastCompressedData = null;
+        cardCompressed.style.display = 'none';
+        resultImages.classList.remove('two-up');
+        document.getElementById('origSize').textContent = formatBytes(originalSize);
+        origLabelTag.textContent = 'Generated';
+        showState('resultState');
+
+        const driveFileName = buildFileName(extForMime(lastImageMime));
+        saveToDriveInBackground(lastImageData, driveFileName, lastImageMime);
+      }
 
     } catch (err) {
       document.getElementById('errorMsg').textContent = translateError(err.message);
@@ -1779,11 +1919,69 @@ Treat the reference jewelry as a finished manufactured product. Reproduce it wit
     }
   }
 
+  // Human-readable file size
+  function formatBytes(b) {
+    if (b == null) return '';
+    if (b < 1024) return b + ' B';
+    if (b < 1048576) return (b / 1024).toFixed(0) + ' KB';
+    return (b / 1048576).toFixed(1) + ' MB';
+  }
+
+  // Approximate decoded byte size of a base64 string (without building a Blob)
+  function base64Bytes(b64) {
+    if (!b64) return 0;
+    const len = b64.length;
+    const padding = (b64.endsWith('==') ? 2 : (b64.endsWith('=') ? 1 : 0));
+    return Math.floor(len * 3 / 4) - padding;
+  }
+
+  // Re-encode an image as a visually-lossless JPEG at the SAME pixel dimensions.
+  // Returns { base64, mime, size, dataUrl }. quality ~0.82 ≈ iLoveIMG-style results.
+  function compressImageData(base64, mime, quality) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          const ctx = canvas.getContext('2d');
+          // JPEG has no transparency — paint white first so any alpha doesn't turn black
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0);
+          canvas.toBlob(blob => {
+            if (!blob) { reject(new Error('Compression failed')); return; }
+            const reader = new FileReader();
+            reader.onload = () => resolve({
+              base64: reader.result.split(',')[1],
+              mime: 'image/jpeg',
+              size: blob.size,
+              dataUrl: reader.result
+            });
+            reader.onerror = () => reject(new Error('Could not read compressed image'));
+            reader.readAsDataURL(blob);
+          }, 'image/jpeg', quality || 0.82);
+        } catch (e) { reject(e); }
+      };
+      img.onerror = () => reject(new Error('Could not load image for compression'));
+      img.src = `data:${mime};base64,${base64}`;
+    });
+  }
+
   function downloadImage() {
     if (!lastImageData) return;
     const a = document.createElement('a');
     a.href = `data:${lastImageMime};base64,${lastImageData}`;
     a.download = buildFileName(extForMime(lastImageMime));
+    a.click();
+  }
+
+  function downloadCompressed() {
+    if (!lastCompressedData) return;
+    const a = document.createElement('a');
+    a.href = `data:${lastCompressedMime};base64,${lastCompressedData}`;
+    a.download = buildFileName(extForMime(lastCompressedMime));
     a.click();
   }
 
