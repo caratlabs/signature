@@ -1053,15 +1053,6 @@ body.dragging .drag-overlay { display: flex; }
     <div class="sidebar-divider"></div>
 
     <div class="sidebar-section">
-      <div class="sidebar-label">Recent</div>
-      <div class="history-grid" id="historyGrid">
-        <div style="font-size:11px;color:var(--text-3);grid-column:1/-1;text-align:center;padding:8px 0;">No images yet</div>
-      </div>
-    </div>
-
-    <div class="sidebar-divider"></div>
-
-    <div class="sidebar-section">
       <div class="sidebar-label">Gallery</div>
       <div class="history-grid" id="galleryGrid">
         <img class="history-thumb"
@@ -1076,6 +1067,15 @@ body.dragging .drag-overlay { display: flex; }
              title="Click to add as Product Ref"
              crossorigin="anonymous"
              onclick="addGalleryImage(this.src, 'Product Ref')"/>
+      </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Recent</div>
+      <div class="history-grid" id="historyGrid">
+        <div style="font-size:11px;color:var(--text-3);grid-column:1/-1;text-align:center;padding:8px 0;">No images yet</div>
       </div>
     </div>
   </div>
