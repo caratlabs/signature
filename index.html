@@ -337,73 +337,6 @@ header {
 }
 .result-image:hover { transform: scale(1.01); }
 
-/* Dual result (original + compressed) */
-.result-images {
-  display: flex;
-  gap: 20px;
-  align-items: flex-start;
-  justify-content: center;
-  flex-wrap: wrap;
-  max-width: 100%;
-}
-.result-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  max-width: 100%;
-}
-.result-images.two-up .result-card { max-width: 46%; }
-.result-images.two-up .result-card .result-image { max-height: calc(100vh - 500px); }
-.result-card-label {
-  font-size: 11px;
-  color: var(--text-2);
-  letter-spacing: 0.03em;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.result-card-label .rc-tag {
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-3);
-}
-.result-card-label .rc-size { font-weight: 600; color: var(--text); }
-.result-card-label .rc-save {
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--success);
-  background: #F0FDF4;
-  border: 1px solid #BBF7D0;
-  border-radius: 10px;
-  padding: 1px 7px;
-}
-
-/* Compression toggle in input toolbar */
-.compress-toggle {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  font-weight: 400;
-  letter-spacing: 0.02em;
-  color: var(--text-2);
-  cursor: pointer;
-  user-select: none;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 4px 9px;
-  transition: border-color 0.15s, color 0.15s;
-}
-.compress-toggle:hover { border-color: var(--gold-light); color: var(--text); }
-.compress-toggle input { width: 13px; height: 13px; accent-color: var(--gold); cursor: pointer; margin: 0; }
-
 /* ── LIGHTBOX ── */
 .lightbox {
   display: none;
@@ -1107,30 +1040,11 @@ body.dragging .drag-overlay { display: flex; }
 
       <!-- Result -->
       <div class="result-state" id="resultState">
-        <div class="result-images" id="resultImages">
-          <!-- Original -->
-          <div class="result-card" id="cardOriginal">
-            <img id="resultImage" class="result-image" src="" alt="" onclick="openLightbox(this.src)" title="Click to zoom"/>
-            <div class="result-card-label" id="origLabel">
-              <span class="rc-tag">Original</span>
-              <span class="rc-size" id="origSize"></span>
-            </div>
-            <button class="action-btn" onclick="downloadImage()">↓ Download Original</button>
-          </div>
-          <!-- Compressed -->
-          <div class="result-card" id="cardCompressed" style="display:none">
-            <img id="resultImageCompressed" class="result-image" src="" alt="" onclick="openLightbox(this.src)" title="Click to zoom"/>
-            <div class="result-card-label" id="compLabel">
-              <span class="rc-tag">Compressed</span>
-              <span class="rc-size" id="compSize"></span>
-              <span class="rc-save" id="compSaveBadge">Saved to Drive</span>
-            </div>
-            <button class="action-btn primary" onclick="downloadCompressed()">↓ Download Compressed</button>
-          </div>
-        </div>
+        <img id="resultImage" class="result-image" src="" alt="" onclick="openLightbox(this.src)" title="Click to zoom"/>
         <div class="result-meta" id="resultMeta"></div>
         <div class="result-actions">
           <button class="action-btn" onclick="generate()">↻ Regenerate</button>
+          <button class="action-btn primary" onclick="downloadImage()">↓ Download Image</button>
         </div>
       </div>
 
@@ -1164,38 +1078,6 @@ body.dragging .drag-overlay { display: flex; }
             <div class="ref-chip" data-type="Background" onclick="selectChip(this)">
               <div class="ref-chip-dot"></div>Background
             </div>
-          </div>
-
-          <!-- Dropdowns -->
-          <div class="input-settings">
-            <label class="compress-toggle" title="Compress the generated image to a much smaller file with no visible quality loss. When on, both the original and compressed versions are shown; only the compressed one is saved to Google Drive.">
-              <input type="checkbox" id="compressToggle" checked/>
-              Compress
-            </label>
-            <span class="setting-label">Model</span>
-            <select class="setting-select" id="modelSelect" onchange="selectModel(this.value)">
-              <option value="gemini-3-pro-image-preview" selected>Nano Banana Pro</option>
-              <option value="gemini-3.1-flash-image-preview">Nano Banana2</option>
-              <option value="gemini-2.5-flash-image">Nano Banana</option>
-            </select>
-            <span class="setting-label">Ratio</span>
-            <select class="setting-select" id="ratioSelect" onchange="selectedRatio=this.value">
-              <option value="1:1" selected>1:1 Square</option>
-              <option value="9:16">9:16 Story</option>
-              <option value="3:4">3:4 Portrait</option>
-              <option value="16:9">16:9 Landscape</option>
-              <option value="4:3">4:3 Print</option>
-              <option value="3:2">3:2 Photo</option>
-              <option value="2:3">2:3 Poster</option>
-              <option value="4:5">4:5 Pinterest</option>
-              <option value="21:9">21:9 Billboard</option>
-            </select>
-            <span class="setting-label">Res</span>
-            <select class="setting-select" id="resSelect" onchange="selectedRes=this.value">
-              <option value="1K">1K Draft</option>
-              <option value="2K">2K Pro</option>
-              <option value="4K" selected>4K Print</option>
-            </select>
           </div>
         </div>
 
@@ -1633,23 +1515,7 @@ body.dragging .drag-overlay { display: flex; }
     return text;
   }
 
-  function selectModel(value) {
-    selectedModel = value;
-    const resSelect = document.getElementById('resSelect');
-    if (ONE_K_ONLY_MODELS.includes(value)) {
-      // Nano Banana supports 1K only — hide 2K/4K and force 1K
-      Array.from(resSelect.options).forEach(opt => {
-        opt.hidden = opt.value !== '1K';
-      });
-      resSelect.value = '1K';
-      selectedRes = '1K';
-    } else {
-      // Nano Banana Pro / Nano Banana2 — all resolutions, default to 4K
-      Array.from(resSelect.options).forEach(opt => { opt.hidden = false; });
-      resSelect.value = '4K';
-      selectedRes = '4K';
-    }
-  }
+  // Model, ratio and resolution are fixed (Nano Banana Pro · 1:1 · 4K) — no UI selectors.
 
   // Set default active chip
   document.querySelector('.ref-chip[data-type="Product Ref"]').classList.add('active');
@@ -1808,9 +1674,9 @@ Treat the reference jewelry as a finished manufactured product. Reproduce it wit
     // Persist the API key so it's remembered across page refreshes
     try { localStorage.setItem(API_KEY_STORE, apiKey); } catch (e) { /* localStorage unavailable */ }
 
-    selectedRatio = document.getElementById('ratioSelect').value;
-    selectedRes = document.getElementById('resSelect').value;
-    selectedModel = document.getElementById('modelSelect').value;
+    selectedRatio = '1:1';
+    selectedRes = '4K';
+    selectedModel = 'gemini-3-pro-image-preview';
     const modelLabel = MODEL_LABELS[selectedModel] || selectedModel;
 
     document.getElementById('runBtn').disabled = true;
@@ -1851,60 +1717,34 @@ Treat the reference jewelry as a finished manufactured product. Reproduce it wit
 
       lastImageData = imagePart.inlineData.data;
       lastImageMime = imagePart.inlineData.mimeType || 'image/png';
-      const imgSrc = `data:${lastImageMime};base64,${lastImageData}`;
-
-      document.getElementById('resultImage').src = imgSrc;
-      document.getElementById('resultMeta').textContent = `${modelLabel}  ·  ${selectedRatio}  ·  ${selectedRes}  ·  Signature Studio`;
-      addToHistory(imgSrc);
-
-      const compressOn = document.getElementById('compressToggle').checked;
       const originalSize = base64Bytes(lastImageData);
-      const resultImages = document.getElementById('resultImages');
-      const cardCompressed = document.getElementById('cardCompressed');
-      const origLabelTag = document.querySelector('#origLabel .rc-tag');
 
-      if (compressOn) {
-        // Build a visually-lossless compressed copy at the same dimensions
-        try {
-          const compressed = await compressImageData(lastImageData, lastImageMime, 0.82);
-          lastCompressedData = compressed.base64;
-          lastCompressedMime = compressed.mime;
+      // Always produce a visually-lossless compressed version and show only that.
+      try {
+        const compressed = await compressImageData(lastImageData, lastImageMime, 0.82);
+        lastCompressedData = compressed.base64;
+        lastCompressedMime = compressed.mime;
 
-          document.getElementById('resultImageCompressed').src = compressed.dataUrl;
-          document.getElementById('origSize').textContent = formatBytes(originalSize);
-          document.getElementById('compSize').textContent =
-            formatBytes(compressed.size) + ` (−${Math.max(0, Math.round((1 - compressed.size / originalSize) * 100))}%)`;
-          origLabelTag.textContent = 'Original';
-          cardCompressed.style.display = 'flex';
-          resultImages.classList.add('two-up');
-          document.getElementById('compSaveBadge').style.display =
-            (driveConnected && document.getElementById('driveAutoSave').checked) ? 'inline-block' : 'none';
-          showState('resultState');
-
-          // Only the compressed version is saved to Google Drive
-          const driveFileName = buildFileName(extForMime(lastCompressedMime));
-          saveToDriveInBackground(lastCompressedData, driveFileName, lastCompressedMime);
-        } catch (compErr) {
-          // If compression fails, fall back to showing/saving just the original
-          lastCompressedData = null;
-          cardCompressed.style.display = 'none';
-          resultImages.classList.remove('two-up');
-          document.getElementById('origSize').textContent = formatBytes(originalSize);
-          origLabelTag.textContent = 'Generated';
-          showState('resultState');
-          showToast('Compression unavailable — showing original only', true);
-          const driveFileName = buildFileName(extForMime(lastImageMime));
-          saveToDriveInBackground(lastImageData, driveFileName, lastImageMime);
-        }
-      } else {
-        // Compression off: single image, original saved to Drive
-        lastCompressedData = null;
-        cardCompressed.style.display = 'none';
-        resultImages.classList.remove('two-up');
-        document.getElementById('origSize').textContent = formatBytes(originalSize);
-        origLabelTag.textContent = 'Generated';
+        document.getElementById('resultImage').src = compressed.dataUrl;
+        const saved = Math.max(0, Math.round((1 - compressed.size / originalSize) * 100));
+        document.getElementById('resultMeta').textContent =
+          `${modelLabel}  ·  ${selectedRatio}  ·  ${selectedRes}  ·  ${formatBytes(compressed.size)} (−${saved}%)  ·  Signature Studio`;
+        addToHistory(compressed.dataUrl);
         showState('resultState');
 
+        // The compressed image is what gets saved to Google Drive (if connected)
+        const driveFileName = buildFileName(extForMime(lastCompressedMime));
+        saveToDriveInBackground(lastCompressedData, driveFileName, lastCompressedMime);
+      } catch (compErr) {
+        // Compression unavailable — fall back to the original image
+        lastCompressedData = null;
+        const imgSrc = `data:${lastImageMime};base64,${lastImageData}`;
+        document.getElementById('resultImage').src = imgSrc;
+        document.getElementById('resultMeta').textContent =
+          `${modelLabel}  ·  ${selectedRatio}  ·  ${selectedRes}  ·  Signature Studio`;
+        addToHistory(imgSrc);
+        showState('resultState');
+        showToast('Compression unavailable — using original', true);
         const driveFileName = buildFileName(extForMime(lastImageMime));
         saveToDriveInBackground(lastImageData, driveFileName, lastImageMime);
       }
@@ -1969,18 +1809,18 @@ Treat the reference jewelry as a finished manufactured product. Reproduce it wit
   }
 
   function downloadImage() {
+    // Download the displayed (compressed) image; fall back to original if needed
+    if (lastCompressedData) {
+      const a = document.createElement('a');
+      a.href = `data:${lastCompressedMime};base64,${lastCompressedData}`;
+      a.download = buildFileName(extForMime(lastCompressedMime));
+      a.click();
+      return;
+    }
     if (!lastImageData) return;
     const a = document.createElement('a');
     a.href = `data:${lastImageMime};base64,${lastImageData}`;
     a.download = buildFileName(extForMime(lastImageMime));
-    a.click();
-  }
-
-  function downloadCompressed() {
-    if (!lastCompressedData) return;
-    const a = document.createElement('a');
-    a.href = `data:${lastCompressedMime};base64,${lastCompressedData}`;
-    a.download = buildFileName(extForMime(lastCompressedMime));
     a.click();
   }
 
