@@ -1279,6 +1279,41 @@ body.dragging .drag-overlay { display: flex; }
     try { localStorage.removeItem(DRIVE_TOKEN_STORE); } catch (e) {}
   }
 
+  // ── Proactive silent token renewal ──
+  // Google's browser OAuth model only issues short-lived (~1 hour) access tokens and
+  // no refresh token, so we can't make a single token last 24–48h. Instead we keep the
+  // connection alive by silently re-minting a fresh token shortly before the current
+  // one expires. This runs with no popup as long as the user's Google session is active
+  // and consent hasn't been revoked, giving a "stay logged in" experience across many
+  // hours. If a silent renewal ever fails, we stop the loop and the UI falls back to
+  // "Drive: Off" so the user can Reconnect once.
+  let driveRenewTimer = null;
+
+  function cancelDriveTokenRenewal() {
+    if (driveRenewTimer) { clearTimeout(driveRenewTimer); driveRenewTimer = null; }
+  }
+
+  function scheduleDriveTokenRenewal() {
+    cancelDriveTokenRenewal();
+    if (!driveConnected || !driveTokenExpiry) return;
+    // Renew ~2 minutes before expiry, but never sooner than 5s from now.
+    const LEAD_MS = 2 * 60 * 1000;
+    const delay = Math.max(5000, driveTokenExpiry - Date.now() - LEAD_MS);
+    driveRenewTimer = setTimeout(async () => {
+      try {
+        // On success this re-runs requestDriveToken's callback, which reschedules
+        // the next renewal automatically — keeping the loop going indefinitely.
+        await requestDriveToken(false);
+      } catch (e) {
+        // Silent renewal failed (session ended or consent needed). Stop looping;
+        // the next manual save or a Reconnect will re-establish the token.
+        cancelDriveTokenRenewal();
+        driveConnected = false;
+        updateDriveUI();
+      }
+    }, delay);
+  }
+
   // Restore a still-valid token from a previous session. Returns true if a usable
   // token was restored (no popup needed), false otherwise.
   function restoreDriveToken() {
@@ -1290,6 +1325,7 @@ body.dragging .drag-overlay { display: flex; }
         driveAccessToken = saved.token;
         driveTokenExpiry = saved.expiry;
         driveConnected = true;
+        scheduleDriveTokenRenewal();
         return true;
       }
       // Expired — drop it so we don't surprise the user with a popup later
@@ -1320,6 +1356,7 @@ body.dragging .drag-overlay { display: flex; }
         driveConnected = true;
         persistDriveToken();
         updateDriveUI();
+        scheduleDriveTokenRenewal();
         resolve(driveAccessToken);
       };
 
@@ -1359,6 +1396,7 @@ body.dragging .drag-overlay { display: flex; }
     driveAccessToken = null;
     driveTokenExpiry = 0;
     driveConnected = false;
+    cancelDriveTokenRenewal();
     clearDriveToken();
     updateDriveUI();
     setDriveStatus('Disconnected. Images will no longer be saved to Drive.', 'warn');
