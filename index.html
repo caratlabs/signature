@@ -1035,7 +1035,7 @@ body.dragging .drag-overlay { display: flex; }
       <div class="loading-state" id="loadingState">
         <div class="spinner"></div>
         <div class="loading-text">Rendering your jewellery…</div>
-        <div class="loading-sub" id="loadingNote">Gemini 3 Pro · Signature Studio</div>
+        <div class="loading-sub" id="loadingNote">Aspect Ratio 1:1</div>
       </div>
 
       <!-- Result -->
@@ -1721,7 +1721,7 @@ Treat the reference jewelry as a finished manufactured product. Reproduce it wit
     isGenerating = true;
     showState('loadingState');
     document.getElementById('loadingNote').textContent =
-      `${modelLabel} · ${selectedRes} · ${selectedRatio}${refFiles.length > 0 ? ` · ${refFiles.length} ref image${refFiles.length > 1 ? 's' : ''}` : ''}`;
+      `Aspect Ratio ${selectedRatio}${refFiles.length > 0 ? ` · ${refFiles.length} ref image${refFiles.length > 1 ? 's' : ''}` : ''}`;
 
     const API_URL = `https://api.laozhang.ai/v1beta/models/${selectedModel}:generateContent`;
     const parts = [{ text: prompt }];
@@ -1766,7 +1766,7 @@ Treat the reference jewelry as a finished manufactured product. Reproduce it wit
         document.getElementById('resultImage').src = compressed.dataUrl;
         const saved = Math.max(0, Math.round((1 - compressed.size / originalSize) * 100));
         document.getElementById('resultMeta').textContent =
-          `${modelLabel}  ·  ${selectedRatio}  ·  ${selectedRes}  ·  ${formatBytes(compressed.size)} (−${saved}%)  ·  Signature Studio`;
+          `Aspect Ratio ${selectedRatio}  ·  ${formatBytes(compressed.size)} (−${saved}%)  ·  Signature Studio`;
         addToHistory(compressed.dataUrl);
         showState('resultState');
 
@@ -1779,7 +1779,7 @@ Treat the reference jewelry as a finished manufactured product. Reproduce it wit
         const imgSrc = `data:${lastImageMime};base64,${lastImageData}`;
         document.getElementById('resultImage').src = imgSrc;
         document.getElementById('resultMeta').textContent =
-          `${modelLabel}  ·  ${selectedRatio}  ·  ${selectedRes}  ·  Signature Studio`;
+          `Aspect Ratio ${selectedRatio}  ·  Signature Studio`;
         addToHistory(imgSrc);
         showState('resultState');
         showToast('Compression unavailable — using original', true);
