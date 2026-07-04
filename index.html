@@ -953,30 +953,34 @@ body.dragging .drag-overlay { display: flex; }
     <div class="sidebar-section">
       <div class="sidebar-label">Quick Presets</div>
       <button class="preset-btn" onclick="setManiquePreset()">
-        <span class="preset-icon">◆</span>
-        <span>Default Manique</span>
-      </button>
-      <button class="preset-btn" onclick="setPrompt('Diamond solitaire ring on black velvet, cinematic studio lighting, luxury jewellery campaign, photorealistic, highly detailed')">
-        <span class="preset-icon">💎</span>
-        <span>Solitaire Ring Campaign</span>
-      </button>
-      <button class="preset-btn" onclick="setPrompt('Diamond tennis bracelet on white marble, soft diffused overhead lighting, luxury product photography, clean white background')">
-        <span class="preset-icon">✦</span>
-        <span>Tennis Bracelet Shot</span>
-      </button>
-      <button class="preset-btn" onclick="setPrompt('Diamond drop earrings on female model, fashion editorial, high-end jewellery advertisement, soft golden hour light')">
-        <span class="preset-icon">◈</span>
-        <span>Earrings Editorial</span>
-      </button>
-      <button class="preset-btn" onclick="setPrompt('Diamond necklace flat lay on dark velvet, macro close-up, brilliant sparkle, deep black background, luxury brand aesthetic')">
         <span class="preset-icon">◇</span>
-        <span>Necklace Flat Lay</span>
+        <span>Necklace</span>
       </button>
-      <button class="preset-btn" onclick="setPrompt('Diamond engagement ring held between fingers, bokeh background, warm natural light, romantic luxury jewellery advertisement')">
+      <button class="preset-btn" onclick="setPrompt('Diamond choker necklace, luxury jewellery campaign, cinematic studio lighting, photorealistic, highly detailed')">
+        <span class="preset-icon">◈</span>
+        <span>Choker</span>
+      </button>
+      <button class="preset-btn" onclick="setPrompt('Diamond earrings, luxury jewellery campaign, cinematic studio lighting, photorealistic, highly detailed')">
+        <span class="preset-icon">✦</span>
+        <span>Earring</span>
+      </button>
+      <button class="preset-btn" onclick="setPrompt('Diamond ladies ring, luxury jewellery campaign, cinematic studio lighting, photorealistic, highly detailed')">
+        <span class="preset-icon">💎</span>
+        <span>Ladies Ring</span>
+      </button>
+      <button class="preset-btn" onclick="setPrompt('Diamond gents ring, luxury jewellery campaign, cinematic studio lighting, photorealistic, highly detailed')">
         <span class="preset-icon">◉</span>
-        <span>Engagement Ring</span>
+        <span>Gents Ring</span>
       </button>
-      <button class="preset-btn" onclick="setPrompt('Diamond bangle bracelet on wrist, lifestyle shot, elegant hands, soft studio lighting, white background, high-end brand')">
+      <button class="preset-btn" onclick="setPrompt('Diamond brooch, luxury jewellery campaign, cinematic studio lighting, photorealistic, highly detailed')">
+        <span class="preset-icon">❋</span>
+        <span>Brooch</span>
+      </button>
+      <button class="preset-btn" onclick="setPrompt('Diamond ladies bracelet, luxury jewellery campaign, cinematic studio lighting, photorealistic, highly detailed')">
+        <span class="preset-icon">◆</span>
+        <span>Ladies Bracelet</span>
+      </button>
+      <button class="preset-btn" onclick="setPrompt('Diamond bangle, luxury jewellery campaign, cinematic studio lighting, photorealistic, highly detailed')">
         <span class="preset-icon">○</span>
         <span>Bangle</span>
       </button>
@@ -1609,7 +1613,7 @@ Treat the reference jewelry as a finished manufactured product. Reproduce it wit
 
   function setManiquePreset() {
     setPrompt(MANIQUE_PROMPT);
-    addGalleryImage('https://cdn.shopify.com/s/files/1/1322/5151/files/green-dummy.png', 'Product Ref');
+    addGalleryImage('https://cdn.shopify.com/s/files/1/1322/5151/files/NK-F-B.jpg?v=1783182948', 'Product Ref');
   }
 
   function autoResize(el) {
