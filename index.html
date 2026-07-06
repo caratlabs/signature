@@ -210,7 +210,7 @@ header {
   background: none;
   border: none;
   border-radius: 8px;
-  padding: 8px 10px;
+  padding: 4px 10px;
   font-size: 12px;
   color: var(--text-2);
   cursor: pointer;
@@ -221,7 +221,7 @@ header {
   display: flex;
   gap: 8px;
   align-items: flex-start;
-  margin-bottom: 2px;
+  margin-bottom: 0;
 }
 .preset-btn:hover { background: var(--surface2); color: var(--text); }
 .preset-icon { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
@@ -959,31 +959,31 @@ body.dragging .drag-overlay { display: flex; }
         <span class="preset-icon">◇</span>
         <span>Necklace</span>
       </button>
-      <button class="preset-btn" onclick="setPrompt('Diamond choker necklace, luxury jewellery campaign, cinematic studio lighting, photorealistic, highly detailed')">
+      <button class="preset-btn" onclick="setPrompt(CHOKER_PROMPT)">
         <span class="preset-icon">◈</span>
         <span>Choker</span>
       </button>
-      <button class="preset-btn" onclick="setPrompt('Diamond earrings, luxury jewellery campaign, cinematic studio lighting, photorealistic, highly detailed')">
+      <button class="preset-btn" onclick="setPrompt(EARRING_PROMPT)">
         <span class="preset-icon">✦</span>
         <span>Earring</span>
       </button>
-      <button class="preset-btn" onclick="setPrompt('Diamond ladies ring, luxury jewellery campaign, cinematic studio lighting, photorealistic, highly detailed')">
+      <button class="preset-btn" onclick="setPrompt(RING_PROMPT)">
         <span class="preset-icon">💎</span>
         <span>Ladies Ring</span>
       </button>
-      <button class="preset-btn" onclick="setPrompt('Diamond gents ring, luxury jewellery campaign, cinematic studio lighting, photorealistic, highly detailed')">
+      <button class="preset-btn" onclick="setPrompt(RING_PROMPT)">
         <span class="preset-icon">◉</span>
         <span>Gents Ring</span>
       </button>
-      <button class="preset-btn" onclick="setPrompt('Diamond brooch, luxury jewellery campaign, cinematic studio lighting, photorealistic, highly detailed')">
+      <button class="preset-btn" onclick="setPrompt(BROOCH_PROMPT)">
         <span class="preset-icon">❋</span>
         <span>Brooch</span>
       </button>
-      <button class="preset-btn" onclick="setPrompt('Diamond ladies bracelet, luxury jewellery campaign, cinematic studio lighting, photorealistic, highly detailed')">
+      <button class="preset-btn" onclick="setPrompt(BRACELET_PROMPT)">
         <span class="preset-icon">◆</span>
         <span>Ladies Bracelet</span>
       </button>
-      <button class="preset-btn" onclick="setPrompt('Diamond bangle, luxury jewellery campaign, cinematic studio lighting, photorealistic, highly detailed')">
+      <button class="preset-btn" onclick="setPrompt(BANGLE_PROMPT)">
         <span class="preset-icon">○</span>
         <span>Bangle</span>
       </button>
@@ -1608,11 +1608,110 @@ body.dragging .drag-overlay { display: flex; }
     ta.focus();
   }
 
-  const MANIQUE_PROMPT = `Replace the diamond necklace and earrings in the first image with the exact same design in 2nd image. Don't change the design. Keep the Colour, shape, size, and quality exact same. Add a very little glitter to the diamond to enhance its beauty.
-Keep the earrings in front view. Remove any text
-Keep the font, size, colour, position exact same.
-Make the earrings' overall size 20% smaller.
-Treat the reference jewelry as a finished manufactured product. Reproduce it without modification.`;
+  const MANIQUE_PROMPT = `1. Replace the necklace and earrings in Image 1 with the exact same necklace and earrings from Image 2.
+2. Treat the reference jewellery as a finished manufactured product. Reproduce it without any modification.
+3. Preserve 100% design fidelity. Do not redesign or reinterpret the jewellery.
+4. Reduce the jewellery's overall occupied area on the mannequin by approximately 20%.
+5. Shorten the necklace chain equally from both sides so the necklace sits closer to the neckline with a natural drape.
+6. Preserve the exact design, proportions, shape, dimensions, stone arrangement, spacing, prongs, motifs, craftsmanship, and quality.
+7. Do not change any diamond shape. Keep every round diamond exactly round.
+8. Change the metal colour to natural 14K gold only.
+9. Keep the earrings perfectly front-facing and proportionally scaled.
+10. Add very subtle, realistic diamond sparkle only.
+11. Remove all text, numbers, logos, and watermarks.
+12. Keep the camera angle, lighting, shadows, reflections, background, composition, mannequin colour, mannequin texture, cloth smoothness, dimensions, and overall appearance exactly the same as Image 1.
+13. Do not modify anything except the jewellery.`;
+
+  const CHOKER_PROMPT = `1. Replace only the choker necklace and earrings in Image 1 with the exact same choker necklace and earrings from Image 2.
+2. Treat the reference jewellery as a finished manufactured product. Reproduce it without any modification.
+3. Preserve 100% design fidelity. Do not redesign or reinterpret the jewellery.
+4. Preserve the exact design, proportions, dimensions, diamond layout, stone arrangement, spacing, prongs, motifs, craftsmanship, finish, and quality.
+5. Keep every diamond's original cut and shape. Do not change any round diamond or any other diamond shape.
+6. Change the metal colour to natural 14K gold only.
+7. Position the choker close to the neck, fitting naturally around the neckline like a real choker. It should follow the neck's contour smoothly with no loose hanging, no visible gap, and no sagging.
+8. Maintain a uniform, symmetrical fit around the neck with realistic contact and natural curvature.
+9. Keep the earrings perfectly front-facing, naturally aligned, and proportionally scaled.
+10. Add very subtle, realistic diamond sparkle only.
+11. Remove all text, numbers, logos, and watermarks.
+12. Keep the mannequin colour, mannequin texture, fabric smoothness, lighting, shadows, reflections, camera angle, background, composition, dimensions, image quality, and overall appearance exactly the same as Image 1.
+13. Do not modify anything except the choker necklace and earrings.
+14. The choker must fit snugly around the neck like a real worn choker. Maintain continuous natural contact with the neck along its entire length. Do not let it hang like a regular necklace, create gaps, or make it appear loose or oversized.`;
+
+  const RING_PROMPT = `1. Replace only the ring in Image 1 with the exact same ring from Image 2.
+2. Treat the reference ring as a finished manufactured product. Reproduce it without any modification.
+3. Preserve 100% design fidelity. Do not redesign or reinterpret the ring.
+4. Preserve the exact design, proportions, dimensions, diamond layout, stone arrangement, spacing, prongs, gallery, shank, motifs, craftsmanship, and quality.
+5. Keep every diamond's original cut and shape. Do not change any round diamond or any other diamond shape.
+6. Change the metal colour to natural 14K gold only.
+7. Fit the ring naturally on the same finger while maintaining the correct size, orientation, and realistic perspective.
+8. Preserve the exact finger position, hand pose, skin tone, skin texture, finger shape, nails, lighting, shadows, reflections, and camera angle from Image 1.
+9. Add very subtle, realistic diamond sparkle only.
+10. Remove all text, numbers, logos, and watermarks.
+11. Keep the background, composition, depth of field, image quality, colours, and overall appearance exactly the same as Image 1.
+12. Do not modify anything except the ring.
+13. Ensure the ring sits naturally on the finger with realistic contact, proper finger curvature, accurate finger thickness, and no floating, clipping, or deformation.`;
+
+  const EARRING_PROMPT = `1. Replace only the earrings in Image 1 with the exact same earrings from Image 2.
+2. Treat the reference earrings as a finished manufactured product. Reproduce them without any modification.
+3. Preserve 100% design fidelity. Do not redesign or reinterpret the earrings.
+4. Preserve the exact design, proportions, shape, dimensions, diamond layout, stone arrangement, spacing, prongs, motifs, craftsmanship, and quality.
+5. Keep every diamond's original cut and shape. Do not change any round diamond or any other diamond shape.
+6. Change the metal colour to natural 14K gold only.
+7. Keep both earrings perfectly front-facing, symmetrical, and naturally aligned with the ears.
+8. Match the size and scale of the earrings naturally to the model/mannequin. Do not make them oversized or undersized.
+9. Ensure the earrings hang naturally and follow realistic gravity.
+10. Add very subtle, realistic diamond sparkle only.
+11. Remove all text, numbers, logos, and watermarks.
+12. Keep the face, ears, skin tone, hair, neck, mannequin (if applicable), lighting, shadows, reflections, background, camera angle, composition, image quality, and overall appearance exactly the same as Image 1.
+13. Do not modify anything except the earrings.
+14. Preserve the exact facial features, skin texture, ear shape, ear position, hair colour, hairstyle, makeup, expression, and pose.
+15. Do not alter the face, ears, neck, or any body features.`;
+
+  const BROOCH_PROMPT = `1. Replace only the brooch in Image 1 with the exact same brooch from Image 2.
+2. Treat the reference brooch as a finished manufactured product. Reproduce it without any modification.
+3. Preserve 100% design fidelity. Do not redesign or reinterpret the brooch.
+4. Preserve the exact design, proportions, dimensions, diamond layout, stone arrangement, spacing, prongs, motifs, craftsmanship, finish, and quality.
+5. Keep every diamond's original cut and shape. Do not change any round diamond or any other diamond shape.
+6. Change the metal colour to natural 14K gold only.
+7. Position the brooch naturally in the same location and orientation as in Image 1, maintaining realistic placement and perspective.
+8. Preserve the exact fabric, clothing texture, folds, lighting, shadows, reflections, camera angle, and overall composition from Image 1.
+9. Add very subtle, realistic diamond sparkle only.
+10. Remove all text, numbers, logos, and watermarks.
+11. Keep the background, colours, image quality, depth of field, and overall appearance exactly the same as Image 1.
+12. Do not modify anything except the brooch.
+13. Ensure the brooch is securely attached to the fabric with realistic contact, natural alignment, correct scale, and accurate perspective. No floating, clipping, distortion, or unrealistic shadows.`;
+
+  const BRACELET_PROMPT = `1. Replace only the bracelet in Image 1 with the exact same bracelet from Image 2.
+2. Treat the reference bracelet as a finished manufactured product. Reproduce it without any modification.
+3. Preserve 100% design fidelity. Do not redesign or reinterpret the bracelet.
+4. Preserve the exact design, open bangle structure, proportions, dimensions, centre motif, diamond layout, gemstone placement, stone arrangement, spacing, prongs, motifs, craftsmanship, finish, and quality.
+5. Keep every diamond and gemstone's original cut, shape, colour, size, and position. Do not change any round, pear, oval, marquise, princess, or any other stone shape.
+6. Change the metal colour to natural 14K gold only.
+7. Maintain the bracelet's open bangle/cuff structure exactly as in the reference. Do not convert it into a closed bracelet, tennis bracelet, chain bracelet, or alter its opening.
+8. Fit the bracelet naturally around the wrist, following the wrist's contour with realistic contact, curvature, and perspective.
+9. Keep the bracelet correctly centred on the wrist with accurate scale. Do not make it oversized, undersized, floating, twisted, stretched, clipped into the skin, or deformed.
+10. Preserve the exact hand pose, wrist position, skin tone, skin texture, nails, lighting, shadows, reflections, camera angle, and perspective from Image 1.
+11. Add very subtle, realistic diamond sparkle only.
+12. Remove all text, numbers, logos, and watermarks.
+13. Keep the background, composition, colours, depth of field, image quality, and overall appearance exactly the same as Image 1.
+14. Do not modify anything except the bracelet.
+15. The bracelet must retain its original open bangle/cuff design exactly as in the reference. It should wrap naturally around the wrist with realistic contact and perspective. Do not change its structure, opening, centre motif, or overall geometry.`;
+
+  const BANGLE_PROMPT = `1. Replace only the bangles in Image 1 with the exact same bangle design from Image 2.
+2. Create two identical bangles using the reference design.
+3. Treat the reference bangle as a finished manufactured product. Reproduce it without any modification.
+4. Preserve 100% design fidelity. Do not redesign or reinterpret the bangles.
+5. Preserve the exact design, proportions, dimensions, diamond layout, stone arrangement, spacing, prongs, motifs, craftsmanship, finish, and quality.
+6. Keep every diamond's original cut, shape, size, and position. Do not change any diamond shape.
+7. Change the metal colour to natural 14K gold only.
+8. Display the two bangles naturally hanging together on the stand, parallel to each other with realistic spacing and alignment.
+9. Both bangles must remain separate and fully visible. Do not merge, overlap excessively, intersect, deform, or fuse them together.
+10. Maintain the exact circular shape, thickness, and proportions of both bangles.
+11. Add very subtle, realistic diamond sparkle only.
+12. Remove all text, numbers, logos, and watermarks.
+13. Keep the display stand, background, lighting, shadows, reflections, camera angle, composition, colours, image quality, and overall appearance exactly the same as Image 1.
+14. Do not modify anything except the bangles.
+15. Display two identical bangles hanging naturally on the stand with realistic gravity, correct spacing, and accurate perspective. Both bangles should remain separate, symmetrical, and fully visible. Do not change their structure, thickness, circular geometry, or design.`;
 
   function setManiquePreset() {
     setPrompt(MANIQUE_PROMPT);
