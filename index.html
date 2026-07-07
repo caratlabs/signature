@@ -963,6 +963,10 @@ body.dragging .drag-overlay { display: flex; }
         <span class="preset-icon">◈</span>
         <span>Choker</span>
       </button>
+      <button class="preset-btn" onclick="setPrompt(CHICSET_PROMPT)">
+        <span class="preset-icon">✧</span>
+        <span>Chic Set</span>
+      </button>
       <button class="preset-btn" onclick="setPrompt(EARRING_PROMPT)">
         <span class="preset-icon">✦</span>
         <span>Earring</span>
@@ -1007,6 +1011,18 @@ body.dragging .drag-overlay { display: flex; }
              crossorigin="anonymous"
              onclick="addGalleryImage(this.src, 'Product Ref')"/>
         <img class="history-thumb"
+             src="https://cdn.shopify.com/s/files/1/1322/5151/files/Choker.jpg?v=1783403150"
+             alt="Choker"
+             title="Click to add as Product Ref"
+             crossorigin="anonymous"
+             onclick="addGalleryImage(this.src, 'Product Ref')"/>
+        <img class="history-thumb"
+             src="https://cdn.shopify.com/s/files/1/1322/5151/files/chicset.jpg?v=1783403124"
+             alt="Chic Set"
+             title="Click to add as Product Ref"
+             crossorigin="anonymous"
+             onclick="addGalleryImage(this.src, 'Product Ref')"/>
+        <img class="history-thumb"
              src="https://cdn.shopify.com/s/files/1/1322/5151/files/ER-F.jpg?v=1783182948"
              alt="Earrings Front"
              title="Click to add as Product Ref"
@@ -1019,7 +1035,13 @@ body.dragging .drag-overlay { display: flex; }
              crossorigin="anonymous"
              onclick="addGalleryImage(this.src, 'Product Ref')"/>
         <img class="history-thumb"
-             src="https://cdn.shopify.com/s/files/1/1322/5151/files/LBR.jpg?v=1783183676"
+             src="https://cdn.shopify.com/s/files/1/1322/5151/files/Brooch.jpg?v=1783402837"
+             alt="Brooch"
+             title="Click to add as Product Ref"
+             crossorigin="anonymous"
+             onclick="addGalleryImage(this.src, 'Product Ref')"/>
+        <img class="history-thumb"
+             src="https://cdn.shopify.com/s/files/1/1322/5151/files/LBR1.jpg?v=1783403301"
              alt="Bracelet"
              title="Click to add as Product Ref"
              crossorigin="anonymous"
@@ -1712,6 +1734,24 @@ body.dragging .drag-overlay { display: flex; }
 13. Keep the display stand, background, lighting, shadows, reflections, camera angle, composition, colours, image quality, and overall appearance exactly the same as Image 1.
 14. Do not modify anything except the bangles.
 15. Display two identical bangles hanging naturally on the stand with realistic gravity, correct spacing, and accurate perspective. Both bangles should remain separate, symmetrical, and fully visible. Do not change their structure, thickness, circular geometry, or design.`;
+
+  const CHICSET_PROMPT = `1. Use the provided chick set (choker necklace) as the reference.
+2. Treat the reference jewellery as a finished manufactured product. Reproduce it without any modification.
+3. Preserve 100% design fidelity. Do not redesign or reinterpret the necklace.
+4. Preserve the exact design, proportions, dimensions, diamond layout, gemstone placement, spacing, prongs, motifs, craftsmanship, finish, and quality.
+5. Keep every diamond and gemstone's original cut, shape, size, and position. Do not change any diamond shape.
+6. Change the metal colour to natural 14K gold only.
+7. Place the necklace naturally as a traditional chick set (tight choker).
+8. The necklace must fit snugly around the base of the neck, following the natural contour of the neck.
+9. Ensure continuous natural contact with the neck. Do not let the necklace hang loose, float, sag, stretch, or appear oversized.
+10. Maintain a uniform, symmetrical fit with realistic curvature, weight, and elegant drape.
+11. Keep the side portions and clasp naturally aligned around the neck unless intentionally hidden by the hair.
+12. Preserve the face, neck shape, skin tone, skin texture, ears, hair, hairstyle, clothing, pose, lighting, shadows, reflections, camera angle, background, and overall composition exactly as in the original image.
+13. Do not modify any facial features, body proportions, skin colour, hairstyle, or any other jewellery unless specifically instructed.
+14. Add very subtle, realistic diamond sparkle only.
+15. Remove all text, numbers, logos, and watermarks.
+16. Do not modify anything except the chick set.
+The necklace must appear as a premium high-jewellery traditional chick set, perfectly fitted to the neck with continuous natural contact along its entire length. It must not float, sag, stretch, or hang like a regular necklace. Preserve the exact design, proportions, geometry, and craftsmanship of the reference jewellery without any modification.`;
 
   function setManiquePreset() {
     setPrompt(MANIQUE_PROMPT);
