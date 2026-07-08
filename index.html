@@ -879,10 +879,185 @@ header {
 }
 body.dragging .drag-overlay { display: flex; }
 
+/* ── AUTH / LOGIN GATE ── */
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(28, 25, 23, 0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.auth-overlay.hidden { display: none; }
+.auth-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 380px;
+  padding: 30px 28px 22px;
+  box-shadow: 0 24px 70px rgba(0,0,0,0.28);
+  text-align: center;
+}
+.auth-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
+  color: var(--gold);
+  letter-spacing: 0.06em;
+  margin-bottom: 14px;
+}
+.auth-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.auth-sub {
+  font-size: 12.5px;
+  color: var(--text-3);
+  line-height: 1.55;
+  margin-bottom: 20px;
+}
+.auth-label {
+  display: block;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 7px;
+}
+.auth-phone-row {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.auth-cc {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--text-2);
+  font-weight: 500;
+}
+.auth-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-size: 15px;
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
+  outline: none;
+  letter-spacing: 0.06em;
+  transition: border-color 0.2s;
+}
+.auth-input:focus { border-color: var(--border-focus); }
+#authOtp { text-align: center; letter-spacing: 0.35em; margin-bottom: 16px; font-size: 18px; }
+.auth-btn {
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 8px;
+}
+.auth-btn.primary { background: var(--gold); color: #fff; }
+.auth-btn.primary:hover:not(:disabled) { background: var(--gold-mid); }
+.auth-btn.primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.auth-btn.ghost { background: none; color: var(--text-3); font-size: 12px; padding: 6px; }
+.auth-btn.ghost:hover { color: var(--text-2); }
+.auth-status {
+  font-size: 12px;
+  border-radius: 8px;
+  padding: 9px 11px;
+  margin-bottom: 16px;
+  line-height: 1.45;
+  display: none;
+  text-align: left;
+}
+.auth-status.show { display: block; }
+.auth-status.ok  { background: #F0FDF4; border: 1px solid #BBF7D0; color: #15803D; }
+.auth-status.err { background: #FEF2F2; border: 1px solid #FECACA; color: var(--error); }
+.auth-foot {
+  font-size: 10px;
+  color: var(--text-3);
+  letter-spacing: 0.04em;
+  margin-top: 12px;
+}
+#recaptcha-container { display: flex; justify-content: center; }
+
+/* Header sign-out */
+.signout-btn {
+  display: none;
+  align-items: center;
+  gap: 5px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: var(--text-2);
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.signout-btn:hover { border-color: var(--error); color: var(--error); }
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
+
+<!-- LOGIN / OTP GATE -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-card">
+    <div class="auth-logo">◆ Signature</div>
+    <div class="auth-title">Secure Sign-In</div>
+    <div class="auth-sub">Access is restricted to authorized mobile numbers. Verify with a one-time password (OTP) to continue.</div>
+
+    <div class="auth-status" id="authStatus"></div>
+
+    <!-- Step 1: phone -->
+    <div id="authPhoneStep">
+      <label class="auth-label">Mobile number</label>
+      <div class="auth-phone-row">
+        <span class="auth-cc">+91</span>
+        <input id="authPhone" class="auth-input" type="tel" inputmode="numeric" maxlength="10" placeholder="10-digit number" autocomplete="tel"/>
+      </div>
+      <button class="auth-btn primary" id="authSendBtn" onclick="authSendOtp()">Send OTP</button>
+    </div>
+
+    <!-- Step 2: otp -->
+    <div id="authOtpStep" style="display:none">
+      <label class="auth-label">Enter the 6-digit OTP</label>
+      <input id="authOtp" class="auth-input" type="tel" inputmode="numeric" maxlength="6" placeholder="------"/>
+      <button class="auth-btn primary" id="authVerifyBtn" onclick="authVerifyOtp()">Verify &amp; Continue</button>
+      <button class="auth-btn ghost" onclick="authResetToPhone()">&larr; Use a different number</button>
+    </div>
+
+    <div id="recaptcha-container"></div>
+    <div class="auth-foot">Protected area &middot; OTP secured by Google Firebase</div>
+  </div>
+</div>
 
 <div class="drag-overlay" id="dragOverlay">Drop images to add as references</div>
 
@@ -938,6 +1113,9 @@ body.dragging .drag-overlay { display: flex; }
     </div>
   </div>
   <div class="header-right">
+    <button class="signout-btn" id="signoutBtn" onclick="authSignOut()" title="Sign out">
+      <span id="signoutLabel">Sign out</span>
+    </button>
     <button class="drive-btn" id="driveBtn" onclick="handleDriveBtn()" title="Google Drive auto-save">
       <span class="drive-dot" id="driveDot"></span>
       <span id="driveBtnText">Drive: Off</span>
@@ -2114,6 +2292,211 @@ The necklace must appear as a premium high-jewellery traditional chick set, perf
   document.addEventListener('dragend', () => document.body.classList.remove('dragging'));
   // Single document-level drop handler (works anywhere on the page)
   document.addEventListener('drop', handleDrop);
+</script>
+
+<!-- ═══════════════ FIREBASE PHONE-AUTH LOGIN GATE ═══════════════ -->
+<script>
+  /* ▼▼▼ STEP 1: PASTE YOUR FIREBASE WEB CONFIG HERE ▼▼▼
+     Get this from Firebase Console -> Project settings -> "Your apps" -> Web app -> SDK setup.
+     Replace every value below with the one from your project. */
+  const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyAnSqsAdXPVdFoCbP1JwXC4ZzPC6hvdOR0",
+    authDomain: "signature-studio-804c7.firebaseapp.com",
+    projectId: "signature-studio-804c7",
+    storageBucket: "signature-studio-804c7.firebasestorage.app",
+    messagingSenderId: "126801146252",
+    appId: "1:126801146252:web:d7c6514a6f2e0ad25426a9"
+  };
+  /* ▲▲▲ STEP 1 ▲▲▲ */
+
+  // Fallback allowlist (used only if the Firestore list can't be read).
+  // The authoritative list lives in Firestore -> collection "allowed_numbers".
+  const ALLOWED_NUMBERS = [
+    '+918800812261',
+    '+919717421851',
+    '+918447308440',
+    '+917599999944'
+  ];
+
+  // Live allowlist, refreshed from Firestore. Starts as the fallback.
+  let allowedNumbers = ALLOWED_NUMBERS.slice();
+
+  const RECHECK_INTERVAL_MS = 2 * 60 * 1000; // re-validate every 2 minutes
+  let authReady = false;
+  let confirmationResult = null;
+  let recheckTimer = null;
+
+  // Load allowed numbers from Firestore collection "allowed_numbers".
+  // Each document either has a field { number: "+91..." } OR uses the number as its document ID.
+  async function loadAllowedNumbers() {
+    try {
+      const snap = await firebase.firestore().collection('allowed_numbers').get();
+      const nums = [];
+      snap.forEach(doc => {
+        const d = doc.data() || {};
+        if (typeof d.number === 'string' && d.number.trim()) nums.push(d.number.trim());
+        else if (doc.id && doc.id.trim().startsWith('+')) nums.push(doc.id.trim());
+      });
+      if (nums.length) allowedNumbers = nums;   // only replace if we actually got a list
+    } catch (e) {
+      // Network/rules issue -> keep the current (fallback) list
+    }
+    return allowedNumbers;
+  }
+
+  function isConfigured() {
+    return FIREBASE_CONFIG.apiKey && !FIREBASE_CONFIG.apiKey.startsWith('PASTE_');
+  }
+
+  function setAuthStatus(msg, type) {
+    const el = document.getElementById('authStatus');
+    if (!msg) { el.className = 'auth-status'; el.textContent = ''; return; }
+    el.textContent = msg;
+    el.className = 'auth-status show ' + (type || 'ok');
+  }
+
+  function showApp() {
+    document.getElementById('authOverlay').classList.add('hidden');
+    document.getElementById('signoutBtn').style.display = 'inline-flex';
+  }
+  function showLogin() {
+    document.getElementById('authOverlay').classList.remove('hidden');
+    document.getElementById('signoutBtn').style.display = 'none';
+    authResetToPhone();
+  }
+
+  function authResetToPhone() {
+    document.getElementById('authPhoneStep').style.display = 'block';
+    document.getElementById('authOtpStep').style.display = 'none';
+    document.getElementById('authOtp').value = '';
+    confirmationResult = null;
+  }
+
+  // Build the (invisible) reCAPTCHA verifier once
+  function ensureRecaptcha() {
+    if (window._recaptchaVerifier) return window._recaptchaVerifier;
+    window._recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+      size: 'invisible'
+    });
+    return window._recaptchaVerifier;
+  }
+
+  async function authSendOtp() {
+    if (!isConfigured()) {
+      setAuthStatus('Login is not configured yet. Paste your Firebase config in the code (FIREBASE_CONFIG).', 'err');
+      return;
+    }
+    const digits = (document.getElementById('authPhone').value || '').replace(/\D/g, '');
+    if (digits.length !== 10) { setAuthStatus('Enter a valid 10-digit mobile number.', 'err'); return; }
+    const phone = '+91' + digits;
+
+    setAuthStatus('Checking authorization…', 'ok');
+    await loadAllowedNumbers();   // get the freshest list from Firestore
+    if (!allowedNumbers.includes(phone)) {
+      setAuthStatus('This number is not authorized to access the portal.', 'err');
+      return;
+    }
+
+    const btn = document.getElementById('authSendBtn');
+    btn.disabled = true; setAuthStatus('Sending OTP…', 'ok');
+    try {
+      const verifier = ensureRecaptcha();
+      confirmationResult = await firebase.auth().signInWithPhoneNumber(phone, verifier);
+      document.getElementById('authPhoneStep').style.display = 'none';
+      document.getElementById('authOtpStep').style.display = 'block';
+      setAuthStatus('OTP sent to ' + phone + '. Enter it below.', 'ok');
+      document.getElementById('authOtp').focus();
+    } catch (err) {
+      setAuthStatus(err.message || 'Could not send OTP. Please try again.', 'err');
+      // reset recaptcha so a retry works
+      try { window._recaptchaVerifier && window._recaptchaVerifier.clear(); window._recaptchaVerifier = null; } catch (e) {}
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  async function authVerifyOtp() {
+    if (!confirmationResult) { setAuthStatus('Please request an OTP first.', 'err'); return; }
+    const code = (document.getElementById('authOtp').value || '').replace(/\D/g, '');
+    if (code.length !== 6) { setAuthStatus('Enter the 6-digit OTP.', 'err'); return; }
+
+    const btn = document.getElementById('authVerifyBtn');
+    btn.disabled = true; setAuthStatus('Verifying…', 'ok');
+    try {
+      const cred = await confirmationResult.confirm(code);
+      const phone = cred.user.phoneNumber;
+      await loadAllowedNumbers();
+      if (!allowedNumbers.includes(phone)) {
+        await firebase.auth().signOut();
+        setAuthStatus('This number is not authorized.', 'err');
+        return;
+      }
+      setAuthStatus('', '');
+      // onAuthStateChanged will reveal the app
+    } catch (err) {
+      setAuthStatus(err.code === 'auth/invalid-verification-code'
+        ? 'Incorrect OTP. Please check and try again.'
+        : (err.message || 'Verification failed.'), 'err');
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  async function authSignOut() {
+    try { await firebase.auth().signOut(); } catch (e) {}
+    showLogin();
+  }
+
+  // Validate a signed-in user: must be allow-listed AND their token must still be valid
+  // (catches users disabled/deleted in the Firebase console).
+  async function validateUser(user) {
+    if (!user) return false;
+    await loadAllowedNumbers();  // refresh from Firestore so console changes take effect
+    if (!allowedNumbers.includes(user.phoneNumber)) return false;
+    try {
+      await user.getIdToken(true); // force refresh; throws if disabled/revoked
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function startRecheck() {
+    if (recheckTimer) return;
+    recheckTimer = setInterval(async () => {
+      const user = firebase.auth().currentUser;
+      const ok = await validateUser(user);
+      if (!ok) { await authSignOut(); }
+    }, RECHECK_INTERVAL_MS);
+  }
+  function stopRecheck() { clearInterval(recheckTimer); recheckTimer = null; }
+
+  // Boot
+  (function initAuth() {
+    if (!isConfigured()) {
+      // Not configured yet: keep the login visible with a helpful message so the app stays locked.
+      showLogin();
+      setAuthStatus('Setup needed: paste your Firebase web config into FIREBASE_CONFIG in the code, then reload.', 'err');
+      document.getElementById('signoutBtn').style.display = 'none';
+      return;
+    }
+    firebase.initializeApp(FIREBASE_CONFIG);
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(() => {});
+    firebase.auth().onAuthStateChanged(async (user) => {
+      authReady = true;
+      const ok = await validateUser(user);
+      if (ok) { showApp(); startRecheck(); }
+      else {
+        stopRecheck();
+        if (user) { try { await firebase.auth().signOut(); } catch (e) {} }
+        showLogin();
+      }
+    });
+  })();
+
+  // Enter-key convenience
+  document.getElementById('authPhone').addEventListener('keydown', e => { if (e.key === 'Enter') authSendOtp(); });
+  document.getElementById('authOtp').addEventListener('keydown', e => { if (e.key === 'Enter') authVerifyOtp(); });
 </script>
 </body>
 </html>
