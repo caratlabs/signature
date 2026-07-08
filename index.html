@@ -1137,37 +1137,37 @@ body.dragging .drag-overlay { display: flex; }
         <span class="preset-icon">◇</span>
         <span>Necklace</span>
       </button>
-      <button class="preset-btn" onclick="setPrompt(CHOKER_PROMPT)">
+      <button class="preset-btn" onclick="applyPreset(CHOKER_PROMPT, 'https://cdn.shopify.com/s/files/1/1322/5151/files/Choker.jpg?v=1783403150')">
         <span class="preset-icon">◈</span>
         <span>Choker</span>
       </button>
-      <button class="preset-btn" onclick="setPrompt(CHICSET_PROMPT)">
+      <button class="preset-btn" onclick="applyPreset(CHICSET_PROMPT, 'https://cdn.shopify.com/s/files/1/1322/5151/files/chicset.jpg?v=1783403124')">
         <span class="preset-icon">✧</span>
         <span>Chic Set</span>
       </button>
-      <button class="preset-btn" onclick="setPrompt(EARRING_PROMPT)">
+      <button class="preset-btn" onclick="applyPreset(EARRING_PROMPT, 'https://cdn.shopify.com/s/files/1/1322/5151/files/ER-F.jpg?v=1783182948')">
         <span class="preset-icon">✦</span>
         <span>Earring</span>
       </button>
-      <button class="preset-btn" onclick="setPrompt(RING_PROMPT)">
+      <button class="preset-btn" onclick="applyPreset(RING_PROMPT, 'https://cdn.shopify.com/s/files/1/1322/5151/files/LR.jpg?v=1783182949')">
         <span class="preset-icon">💎</span>
         <span>Ladies Ring</span>
       </button>
-      <button class="preset-btn" onclick="setPrompt(RING_PROMPT)">
-        <span class="preset-icon">◉</span>
-        <span>Gents Ring</span>
-      </button>
-      <button class="preset-btn" onclick="setPrompt(BROOCH_PROMPT)">
+      <button class="preset-btn" onclick="applyPreset(BROOCH_PROMPT, 'https://cdn.shopify.com/s/files/1/1322/5151/files/Brooch.jpg?v=1783402837')">
         <span class="preset-icon">❋</span>
         <span>Brooch</span>
       </button>
-      <button class="preset-btn" onclick="setPrompt(BRACELET_PROMPT)">
+      <button class="preset-btn" onclick="applyPreset(BRACELET_PROMPT, 'https://cdn.shopify.com/s/files/1/1322/5151/files/LBR1.jpg?v=1783403301')">
         <span class="preset-icon">◆</span>
         <span>Ladies Bracelet</span>
       </button>
-      <button class="preset-btn" onclick="setPrompt(BANGLE_PROMPT)">
+      <button class="preset-btn" onclick="applyPreset(BANGLE_PROMPT, 'https://cdn.shopify.com/s/files/1/1322/5151/files/BA.jpg?v=1783182949')">
         <span class="preset-icon">○</span>
         <span>Bangle</span>
+      </button>
+      <button class="preset-btn" onclick="applyPreset(RING_PROMPT, null)">
+        <span class="preset-icon">◉</span>
+        <span>Gents Ring</span>
       </button>
     </div>
 
@@ -1932,8 +1932,21 @@ body.dragging .drag-overlay { display: flex; }
 The necklace must appear as a premium high-jewellery traditional chick set, perfectly fitted to the neck with continuous natural contact along its entire length. It must not float, sag, stretch, or hang like a regular necklace. Preserve the exact design, proportions, geometry, and craftsmanship of the reference jewellery without any modification.`;
 
   function setManiquePreset() {
-    setPrompt(MANIQUE_PROMPT);
-    addGalleryImage('https://cdn.shopify.com/s/files/1/1322/5151/files/NK-F-B.jpg?v=1783182948', 'Product Ref');
+    applyPreset(MANIQUE_PROMPT, 'https://cdn.shopify.com/s/files/1/1322/5151/files/NK-F-B.jpg?v=1783182948');
+  }
+
+  // Set a preset's prompt and replace the current reference images with the
+  // preset's matching gallery image (if any) in the prompt bar's reference strip.
+  function applyPreset(promptText, imageUrl) {
+    if (isGenerating) {
+      alert('An image is currently being generated. Please wait until it finishes before switching presets.');
+      return;
+    }
+    setPrompt(promptText);
+    // Clear any existing references so only this preset's image remains.
+    refFiles = [];
+    renderRefStrip();
+    if (imageUrl) addGalleryImage(imageUrl, 'Product Ref');
   }
 
   function autoResize(el) {
