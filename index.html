@@ -2471,8 +2471,21 @@ The necklace must appear as a premium high-jewellery traditional chick set, perf
   }
   function stopRecheck() { clearInterval(recheckTimer); recheckTimer = null; }
 
+  // When running locally (dev), skip the OTP gate entirely. In production (real
+  // domain) this is false, so the OTP flow stays fully enforced.
+  function isLocalDev() {
+    const h = location.hostname;
+    return location.protocol === 'file:' || h === 'localhost' || h === '127.0.0.1' || h === '::1';
+  }
+
   // Boot
   (function initAuth() {
+    if (isLocalDev()) {
+      // Local development: bypass authentication and reveal the app immediately.
+      authReady = true;
+      showApp();
+      return;
+    }
     if (!isConfigured()) {
       // Not configured yet: keep the login visible with a helpful message so the app stays locked.
       showLogin();
